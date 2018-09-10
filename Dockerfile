@@ -17,6 +17,7 @@ RUN echo 'http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/reposit
 
 RUN apk --no-cache add \
         php7 \
+        php7-apcu \
         php7-ctype \
         php7-curl \
         php7-dom \
@@ -32,6 +33,7 @@ RUN apk --no-cache add \
         php7-pdo_sqlite \
         php7-pear \
         php7-phar \
+        php7-zip \
         php7-posix \
         php7-session \
         php7-simplexml \
