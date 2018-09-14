@@ -48,7 +48,8 @@ RUN apk --no-cache add \
 RUN apk add --no-cache php7-pear php7-dev gcc musl-dev make
 
 # Install Xdebug
-RUN pecl install xdebug
+#RUN pecl install xdebug
+#commneted as xdebug is not getting enabled due to ini need to investigate it
  
 # Enable Xdebug
 #docker-php-ext-enable xdebug
@@ -56,7 +57,7 @@ RUN pecl install xdebug
 RUN php --ini
 
 # Copy xdebug configuration for remote debugging
-COPY ./xdebug.ini /usr/local/etc/php7/conf.d/xdebug.ini
+#COPY ./xdebug.ini /usr/local/etc/php7/conf.d/xdebug.ini
 #RUN echo 'zend_extension="/usr/lib/php7/modules/xdebug.so"' >> /usr/local/etc/php/php.ini
 #RUN echo 'xdebug.remote_port=9000' >> /usr/local/etc/php/php.ini
 #RUN echo 'xdebug.remote_enable=1' >> /usr/local/etc/php/php.ini
