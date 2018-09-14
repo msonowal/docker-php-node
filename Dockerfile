@@ -45,6 +45,23 @@ RUN apk --no-cache add \
         php7-xmlwriter \
         php7-zlib
 
+RUN apk add --no-cache php7-pear php7-dev gcc musl-dev make
+
+# Install Xdebug
+RUN pecl install xdebug
+ 
+# Enable Xdebug
+#docker-php-ext-enable xdebug
+
+RUN php --ini
+
+# Copy xdebug configuration for remote debugging
+COPY ./xdebug.ini /usr/local/etc/php7/conf.d/xdebug.ini
+#RUN echo 'zend_extension="/usr/lib/php7/modules/xdebug.so"' >> /usr/local/etc/php/php.ini
+#RUN echo 'xdebug.remote_port=9000' >> /usr/local/etc/php/php.ini
+#RUN echo 'xdebug.remote_enable=1' >> /usr/local/etc/php/php.ini
+#RUN echo 'xdebug.remote_connect_back=1' >> /usr/local/etc/php/php.ini
+
 RUN php -v
 
 RUN echo "---> Installing Composer" && \
