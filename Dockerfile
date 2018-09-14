@@ -45,7 +45,7 @@ RUN apk --no-cache add \
         php7-xmlwriter \
         php7-zlib
 
-RUN apk add --no-cache php7-pear php7-dev gcc musl-dev make
+#RUN apk add --no-cache php7-pear php7-dev gcc musl-dev make
 
 # Install Xdebug
 #RUN pecl install xdebug
