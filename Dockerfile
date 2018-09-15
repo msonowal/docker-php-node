@@ -50,19 +50,13 @@ RUN apk --no-cache add \
 
 # Install Xdebug
 #RUN pecl install xdebug
-#commneted as xdebug is not getting enabled due to ini need to investigate it
  
-# Enable Xdebug
-#docker-php-ext-enable xdebug
+RUN ls /usr/lib/php7/modules -l
 
 RUN php --ini
 
-# Copy xdebug configuration for remote debugging
-#COPY ./xdebug.ini /usr/local/etc/php7/conf.d/xdebug.ini
-#RUN echo 'zend_extension="/usr/lib/php7/modules/xdebug.so"' >> /usr/local/etc/php/php.ini
-#RUN echo 'xdebug.remote_port=9000' >> /usr/local/etc/php/php.ini
-#RUN echo 'xdebug.remote_enable=1' >> /usr/local/etc/php/php.ini
-#RUN echo 'xdebug.remote_connect_back=1' >> /usr/local/etc/php/php.ini
+# Enable Xdebug Copy xdebug configuration for remote debugging
+COPY ./xdebug.ini /etc/php7/conf.d/xdebug.ini
 
 RUN php -v
 
@@ -98,6 +92,14 @@ RUN ln -sn /root/.composer/vendor/bin/parallel-lint /usr/local/bin/parallel-lint
     ln -sn /root/.composer/vendor/bin/phpmd /usr/local/bin/phpmd && \
     ln -sn /root/.composer/vendor/bin/phpcs /usr/local/bin/phpcs && \
     ln -sn /root/.composer/vendor/bin/phpcs /usr/local/bin/phpunit-bridge
+
+parallel-lint -V
+var-dump-check
+phpunit --version
+phpcov -V
+phpmd
+phpcs --version
+
 
 RUN echo "Install NODE AND YARN"
 
