@@ -76,6 +76,7 @@ RUN /usr/local/bin/composer global require jakub-onderka/php-parallel-lint && \
     /usr/local/bin/composer global require jakub-onderka/php-var-dump-check && \
     /usr/local/bin/composer global require hirak/prestissimo && \
     /usr/local/bin/composer global require phpunit/phpunit && \
+    /usr/local/bin/composer global require phpunit/phpcov && \
     /usr/local/bin/composer global require phpmd/phpmd && \
     /usr/local/bin/composer global require squizlabs/php_codesniffer && \
     /usr/local/bin/composer global require symfony/phpunit-bridge
@@ -92,6 +93,7 @@ RUN /usr/local/bin/composer config --global cache-repo-dir /opt/data/cache/compo
 RUN ln -sn /root/.composer/vendor/bin/parallel-lint /usr/local/bin/parallel-lint && \
     ln -sn /root/.composer/vendor/bin/var-dump-check /usr/local/bin/var-dump-check && \
     ln -sn /root/.composer/vendor/bin/phpunit /usr/local/bin/phpunit && \
+    ln -sn /root/.composer/vendor/bin/phpcov /usr/local/bin/phpcov && \
     ln -sn /root/.composer/vendor/bin/phpmd /usr/local/bin/phpmd && \
     ln -sn /root/.composer/vendor/bin/phpcs /usr/local/bin/phpcs && \
     ln -sn /root/.composer/vendor/bin/phpcs /usr/local/bin/phpunit-bridge
