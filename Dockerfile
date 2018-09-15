@@ -43,7 +43,8 @@ RUN apk --no-cache add \
         php7-xml \
         php7-xmlreader \
         php7-xmlwriter \
-        php7-zlib
+        php7-zlib \
+        php7-xdebug
 
 #RUN apk add --no-cache php7-pear php7-dev gcc musl-dev make
 
