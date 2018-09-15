@@ -93,13 +93,12 @@ RUN ln -sn /root/.composer/vendor/bin/parallel-lint /usr/local/bin/parallel-lint
     ln -sn /root/.composer/vendor/bin/phpcs /usr/local/bin/phpcs && \
     ln -sn /root/.composer/vendor/bin/phpcs /usr/local/bin/phpunit-bridge
 
-parallel-lint -V
-var-dump-check
-phpunit --version
-phpcov -V
-phpmd
-phpcs --version
-
+RUN parallel-lint -V
+RUN var-dump-check
+RUN phpunit --version
+RUN phpcov -V
+RUN phpmd
+RUN phpcs --version
 
 RUN echo "Install NODE AND YARN"
 
