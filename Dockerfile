@@ -97,7 +97,6 @@ RUN parallel-lint -V
 RUN var-dump-check
 RUN phpunit --version
 RUN phpcov -V
-RUN phpmd
 RUN phpcs --version
 
 RUN echo "Install NODE AND YARN"
