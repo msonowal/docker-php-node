@@ -1,58 +1,79 @@
-FROM alpine:3.7
+FROM alpine:3.8
 
 MAINTAINER Manash Sonowal "manash.sonowal@conversionbug.com"
 
-RUN echo 'http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories && \
-    apk add --update \
-    tar \
-    gzip \
-    curl \
-    bash \
-    git \
-    unzip \
-    wget \
-    openssh-client \
-    openssh \
-    sudo
+LABEL org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.vcs-url="https://github.com/msonowal/docker-php7.1-node-8.git" \
+      org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP CLI 7.1 and NodeJS and Yarn with additional PHP extensions, and Alpine 3.8" \
+      org.label-schema.url="https://github.com/msonowal/docker-php7.1-node-8"
 
-RUN apk --no-cache add \
-        php7 \
-        php7-apcu \
-        php7-ctype \
-        php7-curl \
-        php7-dom \
-        php7-fileinfo \
-        php7-ftp \
-        php7-gmp \
-        php7-iconv \
-        php7-json \
-        php7-mbstring \
-        php7-pdo_mysql \
-        php7-mongodb \
-        php7-mysqlnd \
-        php7-openssl \
-        php7-pdo \
-        php7-pdo_sqlite \
-        php7-pear \
-        php7-phar \
-        php7-zip \
-        php7-posix \
-        php7-session \
-        php7-simplexml \
-        php7-sqlite3 \
-        php7-tokenizer \
-        php7-xml \
-        php7-xmlreader \
-        php7-xmlwriter \
-        php7-zlib \
-        php7-xdebug
+ENV \
+    # When using Composer, disable the warning about running commands as root/super user
+    COMPOSER_ALLOW_SUPERUSER=1 \
+    # Persistent runtime dependencies
+    DEPS="php7.1 \
+        php7.1-phar \
+        php7.1-bcmath \
+        php7.1-bz2 \
+        php7.1-calendar \
+        php7.1-curl \
+        php7.1-ctype \
+        php7.1-dom \
+        php7.1-exif \
+        php7.1-fileinfo \
+        php7.1-ftp \
+        php7.1-gmp \
+        php7.1-iconv \
+        php7.1-json \
+        php7.1-mbstring \
+        php7.1-mysqlnd \
+        php7.1-mongodb \
+        php7.1-opcache \
+        php7.1-openssl \
+        php7.1-pdo \
+        php7.1-pdo_sqlite \
+        php7.1-pdo_mysql \
+        php7.1-pear \
+        php7.1-posix \
+        php7.1-session \
+        php7.1-shmop \
+        php7.1-simplexml \
+        php7.1-sockets \
+        php7.1-sqlite3 \
+        php7.1-sysvsem \
+        php7.1-sysvshm \
+        php7.1-sysvmsg \
+        php7.1-tokenizer \
+        php7.1-xml \
+        php7.1-xmlreader \
+        php7.1-xmlwriter \
+        php7.1-xdebug \
+        php7.1-zip \
+        php7.1-zlib \
+        curl \
+        tar \
+        gzip \
+        bash \
+        git \
+        unzip \
+        wget \
+        openssh-client \
+        openssh \
+        sudo \
+        ca-certificates"
 
-#RUN apk add --no-cache php7-pear php7-dev gcc musl-dev make
+# PHP.earth Alpine repository for better developer experience
+ADD https://repos.php.earth/alpine/phpearth.rsa.pub /etc/apk/keys/phpearth.rsa.pub
 
-# Install Xdebug
-#RUN pecl install xdebug
+RUN set -x \
+    && echo "https://repos.php.earth/alpine/v3.8" >> /etc/apk/repositories \
+    && apk add --no-cache $DEPS
+
+CMD ["php", "-a"]   
+
  
-RUN ls /usr/lib/php7/modules -l
+RUN ls /usr/lib -l
 
 RUN php --ini
 
@@ -108,10 +129,3 @@ RUN apk add yarn
 RUN node -v
 RUN npm -v
 RUN yarn -v
-
-
-
-
-
-
-
