@@ -70,15 +70,13 @@ RUN set -x \
     && echo "https://repos.php.earth/alpine/v3.8" >> /etc/apk/repositories \
     && apk add --no-cache $DEPS
 
-CMD ["php", "-a"]   
-
  
-RUN ls /usr/lib -l
+RUN ls /usr/lib/php -l
 
 RUN php --ini
 
 # Enable Xdebug Copy xdebug configuration for remote debugging
-COPY ./xdebug.ini /etc/php7/conf.d/xdebug.ini
+COPY ./xdebug.ini /etc/php7.1/conf.d/xdebug.ini
 
 RUN php -v
 
@@ -122,10 +120,10 @@ RUN phpcov -V
 RUN phpcs --version
 
 RUN echo "Install NODE AND YARN"
-
-RUN apk add nodejs
-RUN apk add yarn
+RUN apk add --no-cache nodejs nodejs-npm yarn
 
 RUN node -v
 RUN npm -v
 RUN yarn -v
+
+CMD ["php", "-a"]
