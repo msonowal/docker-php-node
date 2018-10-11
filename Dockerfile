@@ -71,7 +71,7 @@ RUN set -x \
     && apk add --no-cache $DEPS
 
  
-RUN ls /usr/lib/php -l
+RUN ls /usr/lib/php/7.1 -l
 
 RUN php --ini
 
