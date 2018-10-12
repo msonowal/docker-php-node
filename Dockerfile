@@ -94,7 +94,8 @@ RUN /usr/local/bin/composer global require jakub-onderka/php-parallel-lint && \
     /usr/local/bin/composer global require phpunit/phpcov && \
     /usr/local/bin/composer global require phpmd/phpmd && \
     /usr/local/bin/composer global require squizlabs/php_codesniffer && \
-    /usr/local/bin/composer global require symfony/phpunit-bridge
+    /usr/local/bin/composer global require symfony/phpunit-bridge && \
+    /usr/local/bin/composer global require laravel/envoy
 
 RUN /usr/local/bin/composer config --global cache-dir /opt/data/cache/composer/cache-dir
 RUN /usr/local/bin/composer config --global cache-vcs-dir /opt/data/cache/composer/cache-vcs-dir
@@ -111,7 +112,8 @@ RUN ln -sn /root/.composer/vendor/bin/parallel-lint /usr/local/bin/parallel-lint
     ln -sn /root/.composer/vendor/bin/phpcov /usr/local/bin/phpcov && \
     ln -sn /root/.composer/vendor/bin/phpmd /usr/local/bin/phpmd && \
     ln -sn /root/.composer/vendor/bin/phpcs /usr/local/bin/phpcs && \
-    ln -sn /root/.composer/vendor/bin/phpcs /usr/local/bin/phpunit-bridge
+    ln -sn /root/.composer/vendor/bin/phpcs /usr/local/bin/phpunit-bridge && \
+    ln -sn /root/.composer/vendor/bin/envoy /usr/local/bin/envoy
 
 RUN parallel-lint -V
 RUN var-dump-check
