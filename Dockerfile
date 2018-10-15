@@ -61,6 +61,7 @@ ENV \
         openssh-client \
         openssh \
         sudo \
+        libpng-dev \
         ca-certificates"
 
 # PHP.earth Alpine repository for better developer experience
