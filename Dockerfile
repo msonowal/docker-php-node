@@ -51,6 +51,7 @@ ENV \
         php7.1-xdebug \
         php7.1-zip \
         php7.1-zlib \
+        php7.1-pcntl \
         curl \
         tar \
         gzip \
