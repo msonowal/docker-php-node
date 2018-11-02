@@ -59,6 +59,7 @@ ENV \
         git \
         unzip \
         wget \
+        rsync \
         openssh-client \
         openssh \
         sudo \
