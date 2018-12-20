@@ -126,7 +126,7 @@ RUN phpcs --version
 
 RUN echo "Install NODE AND YARN"
 #RUN apk add --no-cache nodejs nodejs-npm yarn
-RUN apk add --no-cache nodejs
+RUN apk add --no-cache nodejs nodejs-npm
 
 ENV YARN_VERSION 1.12.3
 
@@ -146,7 +146,7 @@ RUN ls -l /opt
 RUN ls -l /opt/yarn 
 
 RUN node -v
-#RUN npm -v
+RUN npm -v
 RUN yarn -v
 RUN curl -V
 
