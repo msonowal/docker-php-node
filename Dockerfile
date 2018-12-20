@@ -132,7 +132,7 @@ RUN apk add --no-cache nodejs nodejs-npm
 RUN mkdir -p /opt && \
   curl -sL https://yarnpkg.com/latest.tar.gz | tar xz -C /opt && \
   cd /opt && \
-  mv $(ls -d */|head -n 1) yarn
+  mv $(ls -d */|head -n 1) yarn && \
   ln -s /opt/yarn/bin/yarn /usr/local/bin
 
 RUN node -v
