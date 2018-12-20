@@ -126,17 +126,27 @@ RUN phpcs --version
 
 RUN echo "Install NODE AND YARN"
 #RUN apk add --no-cache nodejs nodejs-npm yarn
-RUN apk add --no-cache nodejs nodejs-npm
+RUN apk add --no-cache nodejs
 
-#installing latest version of yarn on build
-RUN mkdir -p /opt && \
-  curl -sL https://yarnpkg.com/latest.tar.gz | tar xz -C /opt && \
-  cd /opt && \
-  mv $(ls -d */|head -n 1) yarn && \
-  ln -s /opt/yarn/bin/yarn /usr/local/bin
+ENV YARN_VERSION 1.12.3
+
+ADD https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v${YARN_VERSION}.tar.gz /opt/yarn.tar.gz
+RUN ls -l /opt
+
+RUN yarnDirectory=/opt && \
+    mkdir -p "$yarnDirectory" && \
+    tar -xzf /opt/yarn.tar.gz -C "$yarnDirectory" && \
+    ls -l "$yarnDirectory" && \
+    mv "$yarnDirectory/yarn-v${YARN_VERSION}" "$yarnDirectory/yarn" && \
+    ln -s "$yarnDirectory/yarn/bin/yarn" /usr/local/bin/ && \
+    rm /opt/yarn.tar.gz
+
+RUN ls -l /opt
+
+RUN ls -l /opt/yarn 
 
 RUN node -v
-RUN npm -v
+#RUN npm -v
 RUN yarn -v
 RUN curl -V
 
