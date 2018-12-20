@@ -131,7 +131,6 @@ RUN apk add --no-cache nodejs nodejs-npm
 #installing latest version of yarn on build
 RUN mkdir -p /opt && \
   curl -sL https://yarnpkg.com/latest.tar.gz | tar xz -C /opt && \
-  mv /opt/dist /opt/yarn && \
   ln -s /opt/yarn/bin/yarn /usr/local/bin
 
 RUN node -v
