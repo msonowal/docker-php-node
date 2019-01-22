@@ -145,7 +145,7 @@ RUN ls -l /opt/yarn
 
 RUN node -v
 #RUN npm -v
-RUN npx -v
+#RUN npx -v
 RUN yarn -v
 RUN curl -V
 
