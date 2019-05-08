@@ -6,7 +6,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-url="https://github.com/msonowal/docker-php7.1-node-8.git" \
       org.label-schema.vcs-ref=$VCS_REF \
       org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP CLI 7.1 and NodeJS and Yarn with additional PHP extensions, and Alpine 3.8" \
-      org.label-schema.url="https://github.com/msonowal/docker-php7.1-node-10.14.2"
+      org.label-schema.url="https://github.com/msonowal/docker-php7.1-node-8"
 
 ENV \
     # When using Composer, disable the warning about running commands as root/super user
