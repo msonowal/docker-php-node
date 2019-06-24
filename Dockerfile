@@ -13,7 +13,7 @@ ENV \
     COMPOSER_ALLOW_SUPERUSER=1 \
     # Persistent runtime dependencies
     DEPS="php7.2 \
-        php`-phar \
+        php7.2-phar \
         php7.2-bcmath \
         php7.2-bz2 \
         php7.2-calendar \
