@@ -1,6 +1,6 @@
 FROM alpine:3.9
 
-MAINTAINER Manash Sonowal "manash.sonowal@conversionbug.com"
+LABEL maintainer="manash.sonowal@conversionbug.com"
 
 LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-url="https://github.com/msonowal/docker-php7.1-node-8.git" \
@@ -24,6 +24,7 @@ ENV \
         php7.2-fileinfo \
         php7.2-ftp \
         php7.2-gmp \
+        php7.2-gd \
         php7.2-iconv \
         php7.2-json \
         php7.2-mbstring \
