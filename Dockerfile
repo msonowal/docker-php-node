@@ -72,24 +72,20 @@ ADD https://repos.php.earth/alpine/phpearth.rsa.pub /etc/apk/keys/phpearth.rsa.p
 
 RUN set -x \
     && echo "https://repos.php.earth/alpine/v3.9" >> /etc/apk/repositories \
-    && apk add --no-cache $DEPS
-
-
-RUN ls /usr/lib/php/7.2 -l
-
-RUN php --ini
+    && apk add --no-cache $DEPS && \
+    unset DEPS
 
 # Enable Xdebug Copy xdebug configuration for remote debugging
 COPY ./xdebug.ini /etc/php7.2/conf.d/xdebug.ini
-
-RUN php -v
+RUN ls /usr/lib/php/7.2 -l && \
+    php --ini && \
+    php -v
 
 RUN echo "---> Installing Composer" && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
     echo "---> Cleaning up" && \
-    rm -rf /tmp/*
-
-RUN composer -V
+    rm -rf /tmp/* && \
+    composer -V
 
 RUN /usr/local/bin/composer global require jakub-onderka/php-parallel-lint && \
     /usr/local/bin/composer global require jakub-onderka/php-var-dump-check && \
@@ -99,18 +95,17 @@ RUN /usr/local/bin/composer global require jakub-onderka/php-parallel-lint && \
     /usr/local/bin/composer global require phpmd/phpmd && \
     /usr/local/bin/composer global require squizlabs/php_codesniffer && \
     /usr/local/bin/composer global require symfony/phpunit-bridge && \
-    /usr/local/bin/composer global require laravel/envoy
-
-RUN /usr/local/bin/composer config --global cache-dir /opt/data/cache/composer/cache-dir
-RUN /usr/local/bin/composer config --global cache-vcs-dir /opt/data/cache/composer/cache-vcs-dir
-RUN /usr/local/bin/composer config --global cache-repo-dir /opt/data/cache/composer/cache-repo-dir
+    /usr/local/bin/composer global require laravel/envoy && \
+    /usr/local/bin/composer config --global cache-dir /opt/data/cache/composer/cache-dir && \
+    /usr/local/bin/composer config --global cache-vcs-dir /opt/data/cache/composer/cache-vcs-dir && \
+    /usr/local/bin/composer config --global cache-repo-dir /opt/data/cache/composer/cache-repo-dir && \
 
 #RUN wget https://github.com/phpDocumentor/phpDocumentor2/releases/download/v2.9.0/phpDocumentor.phar
 
 #RUN echo -e "#!/bin/bash\n\nphp /phpDocumentor.phar \$@" >> /usr/local/bin/phpdoc && \
 #    chmod +x /usr/local/bin/phpdoc
 
-RUN ln -sn /root/.composer/vendor/bin/parallel-lint /usr/local/bin/parallel-lint && \
+    ln -sn /root/.composer/vendor/bin/parallel-lint /usr/local/bin/parallel-lint && \
     ln -sn /root/.composer/vendor/bin/var-dump-check /usr/local/bin/var-dump-check && \
     ln -sn /root/.composer/vendor/bin/phpunit /usr/local/bin/phpunit && \
     ln -sn /root/.composer/vendor/bin/phpcov /usr/local/bin/phpcov && \
@@ -119,15 +114,15 @@ RUN ln -sn /root/.composer/vendor/bin/parallel-lint /usr/local/bin/parallel-lint
     ln -sn /root/.composer/vendor/bin/phpcs /usr/local/bin/phpunit-bridge && \
     ln -sn /root/.composer/vendor/bin/envoy /usr/local/bin/envoy
 
-RUN parallel-lint -V
-RUN var-dump-check
-RUN phpunit --version
-RUN phpcov -V
-RUN phpcs --version
-
-RUN echo "Install NODE AND YARN"
+RUN parallel-lint -V && \
+    var-dump-check && \
+    phpunit --version && \
+    phpcov -V && \
+    phpcs --version && \
+    
+    echo "Install NODE AND YARN" && \
+    apk add --no-cache nodejs
 #RUN apk add --no-cache nodejs nodejs-npm yarn
-RUN apk add --no-cache nodejs
 
 ENV YARN_VERSION 1.16.0
 ADD https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v${YARN_VERSION}.tar.gz /opt/yarn.tar.gz
@@ -140,14 +135,12 @@ RUN yarnDirectory=/opt && \
   ln -s "$yarnDirectory/yarn/bin/yarn" /usr/local/bin/ && \
   rm /opt/yarn.tar.gz
 
-RUN ls -l /opt
-
-RUN ls -l /opt/yarn 
-
-RUN node -v
+RUN ls -l /opt && \
+    ls -l /opt/yarn && \
+    node -v && \
+    yarn -v && \
+    curl -V
 #RUN npm -v
 #RUN npx -v
-RUN yarn -v
-RUN curl -V
 
 CMD ["php", "-a"]
