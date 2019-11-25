@@ -128,7 +128,7 @@ RUN echo "Install NODE AND YARN"
 #RUN apk add --no-cache nodejs nodejs-npm yarn
 RUN apk add --no-cache nodejs
 
-ENV YARN_VERSION 1.16.0
+ENV YARN_VERSION 1.19.1
 ADD https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v${YARN_VERSION}.tar.gz /opt/yarn.tar.gz
 
 RUN yarnDirectory=/opt && \
