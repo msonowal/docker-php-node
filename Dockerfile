@@ -49,7 +49,7 @@ ENV \
         php7.4-xml \
         php7.4-xmlreader \
         php7.4-xmlwriter \
-        php7.4-xdebug \
+#         php7.4-xdebug \
         php7.4-zip \
         php7.4-zlib \
         php7.4-pcntl \
