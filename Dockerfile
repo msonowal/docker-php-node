@@ -44,7 +44,7 @@ RUN composer global require hirak/prestissimo && \
     jakub-onderka/php-var-dump-check \
     phpunit/phpunit phpunit/phpcov \
     phpmd/phpmd squizlabs/php_codesniffer \
-    symfony/phpunit-bridge && \
+    symfony/phpunit-bridge \
     laravel/envoy && \
     # composer config --global cache-dir /opt/data/cache/composer/cache-dir && \
     # composer config --global cache-vcs-dir /opt/data/cache/composer/cache-vcs-dir && \
@@ -55,7 +55,7 @@ RUN composer global require hirak/prestissimo && \
     ln -sn /root/.composer/vendor/bin/phpcov /usr/local/bin/phpcov && \
     ln -sn /root/.composer/vendor/bin/phpmd /usr/local/bin/phpmd && \
     ln -sn /root/.composer/vendor/bin/phpcs /usr/local/bin/phpcs && \
-    ln -sn /root/.composer/vendor/bin/phpcs /usr/local/bin/phpunit-bridge && \
+    ln -sn /root/.composer/vendor/bin/phpunit-bridge /usr/local/bin/phpunit-bridge && \
     ln -sn /root/.composer/vendor/bin/envoy /usr/local/bin/envoy
 
 #RUN wget https://github.com/phpDocumentor/phpDocumentor2/releases/download/v2.9.0/phpDocumentor.phar
