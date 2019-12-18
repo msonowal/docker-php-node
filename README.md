@@ -1,5 +1,7 @@
-# docker-php7.1-node-8
+# docker-php and node LTS
 with XDEBUG enabled
+
+to be used with CI runners etc or developments
 
 and
 npm and Yarn pre-installed
