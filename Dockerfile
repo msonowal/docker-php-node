@@ -1,85 +1,37 @@
-FROM alpine:3.9
+FROM php:7.4-fpm-alpine
 
 LABEL maintainer="manash.sonowal@conversionbug.com"
 
 LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-url="https://github.com/msonowal/docker-php7.1-node-8.git" \
       org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP CLI 7.4 and NodeJS and Yarn with additional PHP extensions, and Alpine 3.8" \
+      org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP 7.4 and NodeJS and Yarn with additional PHP extensions on official PHP Alpine flavour" \
       org.label-schema.url="https://github.com/msonowal/docker-php7.1-node-8"
 
-ENV \
-    # When using Composer, disable the warning about running commands as root/super user
-    COMPOSER_ALLOW_SUPERUSER=1 \
-    # Persistent runtime dependencies
-    DEPS="php7.4 \
-        php7.4-phar \
-        php7.4-bcmath \
-        php7.4-bz2 \
-        php7.4-calendar \
-        php7.4-curl \
-        php7.4-ctype \
-        php7.4-dom \
-        php7.4-exif \
-        php7.4-fileinfo \
-        php7.4-ftp \
-        php7.4-gmp \
-        php7.4-gd \
-        php7.4-iconv \
-        php7.4-json \
-        php7.4-mbstring \
-        php7.4-mysqlnd \
-        php7.4-mongodb \
-        php7.4-opcache \
-        php7.4-openssl \
-        php7.4-pdo \
-        php7.4-pdo_sqlite \
-        php7.4-pdo_mysql \
-        php7.4-pear \
-        php7.4-posix \
-        php7.4-session \
-        php7.4-shmop \
-        php7.4-simplexml \
-        php7.4-sockets \
-        php7.4-sqlite3 \
-        php7.4-sysvsem \
-        php7.4-sysvshm \
-        php7.4-sysvmsg \
-        php7.4-tokenizer \
-        php7.4-xml \
-        php7.4-xmlreader \
-        php7.4-xmlwriter \
-#         php7.4-xdebug \
-        php7.4-zip \
-        php7.4-zlib \
-        php7.4-pcntl \
-        curl \
-        tar \
-        gzip \
-        bash \
-        git \
-        unzip \
-        wget \
-        rsync \
-        openssh-client \
-        openssh \
-        sudo \
-        libpng-dev \
-        ca-certificates"
+RUN echo $PHP_INI_DIR
+# Use the default development configuration
+RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
-# PHP.earth Alpine repository for better developer experience
-ADD https://repos.php.earth/alpine/phpearth.rsa.pub /etc/apk/keys/phpearth.rsa.pub
+RUN apk --no-cache add pcre-dev ${PHPIZE_DEPS} \ 
+  && pecl install redis-5.1.1 \
+  && pecl install xdebug-2.9.0 \
+  && docker-php-ext-enable xdebug redis \
+  && docker-php-ext-install bcmath \
+  && apk del pcre-dev ${PHPIZE_DEPS}
 
-RUN set -x \
-    && echo "https://repos.php.earth/alpine/v3.9" >> /etc/apk/repositories \
-    && apk add --no-cache $DEPS && \
-    unset DEPS
+# inspired from here
+# https://stackoverflow.com/a/48444443/1125961
 
+# Use the default production configuration
+# RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 # Enable Xdebug Copy xdebug configuration for remote debugging
-COPY ./xdebug.ini /etc/php7.4/conf.d/xdebug.ini
-RUN ls /usr/lib/php/7.4 -l && \
+# COPY ./xdebug.ini "$PHP_INI_DIR/conf.d/xdebug.ini"
+RUN ls "$PHP_INI_DIR" -lha && \
+    ls "$PHP_INI_DIR/conf.d" -lha && \
     php --ini && \
-    php -v
+    php -v &&\
+    php -m && \
+    php -i
 
 RUN echo "---> Installing Composer" && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
@@ -87,24 +39,16 @@ RUN echo "---> Installing Composer" && \
     rm -rf /tmp/* && \
     composer -V
 
-RUN /usr/local/bin/composer global require jakub-onderka/php-parallel-lint && \
-    /usr/local/bin/composer global require jakub-onderka/php-var-dump-check && \
-    /usr/local/bin/composer global require hirak/prestissimo && \
-    /usr/local/bin/composer global require phpunit/phpunit && \
-    /usr/local/bin/composer global require phpunit/phpcov && \
-    /usr/local/bin/composer global require phpmd/phpmd && \
-    /usr/local/bin/composer global require squizlabs/php_codesniffer && \
-    /usr/local/bin/composer global require symfony/phpunit-bridge && \
-    /usr/local/bin/composer global require laravel/envoy && \
-    /usr/local/bin/composer config --global cache-dir /opt/data/cache/composer/cache-dir && \
-    /usr/local/bin/composer config --global cache-vcs-dir /opt/data/cache/composer/cache-vcs-dir && \
-    /usr/local/bin/composer config --global cache-repo-dir /opt/data/cache/composer/cache-repo-dir && \
-
-#RUN wget https://github.com/phpDocumentor/phpDocumentor2/releases/download/v2.9.0/phpDocumentor.phar
-
-#RUN echo -e "#!/bin/bash\n\nphp /phpDocumentor.phar \$@" >> /usr/local/bin/phpdoc && \
-#    chmod +x /usr/local/bin/phpdoc
-
+RUN composer global require hirak/prestissimo && \
+    composer global require jakub-onderka/php-parallel-lint \
+    jakub-onderka/php-var-dump-check \
+    phpunit/phpunit phpunit/phpcov \
+    phpmd/phpmd squizlabs/php_codesniffer \
+    symfony/phpunit-bridge && \
+    laravel/envoy && \
+    # composer config --global cache-dir /opt/data/cache/composer/cache-dir && \
+    # composer config --global cache-vcs-dir /opt/data/cache/composer/cache-vcs-dir && \
+    # composer config --global cache-repo-dir /opt/data/cache/composer/cache-repo-dir && \
     ln -sn /root/.composer/vendor/bin/parallel-lint /usr/local/bin/parallel-lint && \
     ln -sn /root/.composer/vendor/bin/var-dump-check /usr/local/bin/var-dump-check && \
     ln -sn /root/.composer/vendor/bin/phpunit /usr/local/bin/phpunit && \
@@ -114,17 +58,20 @@ RUN /usr/local/bin/composer global require jakub-onderka/php-parallel-lint && \
     ln -sn /root/.composer/vendor/bin/phpcs /usr/local/bin/phpunit-bridge && \
     ln -sn /root/.composer/vendor/bin/envoy /usr/local/bin/envoy
 
+#RUN wget https://github.com/phpDocumentor/phpDocumentor2/releases/download/v2.9.0/phpDocumentor.phar
+#RUN echo -e "#!/bin/bash\n\nphp /phpDocumentor.phar \$@" >> /usr/local/bin/phpdoc && \
+#    chmod +x /usr/local/bin/phpdoc
+
 RUN parallel-lint -V && \
     var-dump-check && \
     phpunit --version && \
     phpcov -V && \
     phpcs --version && \
-    
     echo "Install NODE AND YARN" && \
     apk add --no-cache nodejs
 #RUN apk add --no-cache nodejs nodejs-npm yarn
 
-ENV YARN_VERSION 1.19.2
+ENV YARN_VERSION 1.21.1
 ADD https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v${YARN_VERSION}.tar.gz /opt/yarn.tar.gz
 
 RUN yarnDirectory=/opt && \
@@ -132,12 +79,10 @@ RUN yarnDirectory=/opt && \
    tar -xzf /opt/yarn.tar.gz -C "$yarnDirectory" && \
    ls -l "$yarnDirectory" && \
    mv "$yarnDirectory/yarn-v${YARN_VERSION}" "$yarnDirectory/yarn" && \
-  ln -s "$yarnDirectory/yarn/bin/yarn" /usr/local/bin/ && \
-  rm /opt/yarn.tar.gz
+   ln -s "$yarnDirectory/yarn/bin/yarn" /usr/local/bin/ && \
+   rm /opt/yarn.tar.gz
 
-RUN ls -l /opt && \
-    ls -l /opt/yarn && \
-    node -v && \
+RUN node -v && \
     yarn -v && \
     curl -V
 #RUN npm -v
