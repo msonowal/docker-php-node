@@ -16,7 +16,7 @@ RUN apk --no-cache add pcre-dev ${PHPIZE_DEPS} \
   && pecl install redis-5.1.1 \
   && pecl install xdebug-2.9.0 \
   && docker-php-ext-enable xdebug redis \
-  && docker-php-ext-install bcmath \
+  && docker-php-ext-install bcmath pcntl opcache pdo_mysql sockets sockets \
   && apk del pcre-dev ${PHPIZE_DEPS}
 
 # inspired from here
