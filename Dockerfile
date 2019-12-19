@@ -12,12 +12,19 @@ RUN echo $PHP_INI_DIR
 # Use the default development configuration
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
-RUN apk --no-cache add pcre-dev ${PHPIZE_DEPS} \ 
+RUN php -m \
+  && apk add --no-cache \
+      pcre-dev ${PHPIZE_DEPS} \ 
+      freetype libjpeg-turbo freetype-dev libjpeg-turbo-dev \
+  && docker-php-ext-configure gd \
+    --with-freetype \
+    --with-jpeg \
+  && docker-php-ext-install -j$(nproc) gd \
   && pecl install redis-5.1.1 \
   && pecl install xdebug-2.9.0 \
   && docker-php-ext-enable xdebug redis \
   && docker-php-ext-install bcmath pcntl opcache pdo_mysql sockets sockets \
-  && apk del pcre-dev ${PHPIZE_DEPS}
+  && apk del --no-cache freetype-dev libjpeg-turbo-dev pcre-dev ${PHPIZE_DEPS}
 
 # inspired from here
 # https://stackoverflow.com/a/48444443/1125961
@@ -46,6 +53,9 @@ RUN composer global require hirak/prestissimo && \
     phpmd/phpmd squizlabs/php_codesniffer \
     symfony/phpunit-bridge \
     laravel/envoy && \
+    phpstan/phpstan && \
+    nunomaduro/phpinsights && \
+    sebastian/phpcpd && \
     # composer config --global cache-dir /opt/data/cache/composer/cache-dir && \
     # composer config --global cache-vcs-dir /opt/data/cache/composer/cache-vcs-dir && \
     # composer config --global cache-repo-dir /opt/data/cache/composer/cache-repo-dir && \
@@ -56,7 +66,10 @@ RUN composer global require hirak/prestissimo && \
     ln -sn /root/.composer/vendor/bin/phpmd /usr/local/bin/phpmd && \
     ln -sn /root/.composer/vendor/bin/phpcs /usr/local/bin/phpcs && \
     ln -sn /root/.composer/vendor/bin/phpunit-bridge /usr/local/bin/phpunit-bridge && \
-    ln -sn /root/.composer/vendor/bin/envoy /usr/local/bin/envoy
+    ln -sn /root/.composer/vendor/bin/envoy /usr/local/bin/envoy && \
+    ln -sn /root/.composer/vendor/bin/phpstan /usr/local/bin/phpstan && \
+    ln -sn /root/.composer/vendor/bin/phpinsights /usr/local/bin/phpinsights && \
+    ln -sn /root/.composer/vendor/bin/phpcpd /usr/local/bin/phpcpd
 
 #RUN wget https://github.com/phpDocumentor/phpDocumentor2/releases/download/v2.9.0/phpDocumentor.phar
 #RUN echo -e "#!/bin/bash\n\nphp /phpDocumentor.phar \$@" >> /usr/local/bin/phpdoc && \
