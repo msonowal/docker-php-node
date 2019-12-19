@@ -53,9 +53,9 @@ RUN composer global require hirak/prestissimo && \
     phpmd/phpmd squizlabs/php_codesniffer \
     symfony/phpunit-bridge \
     laravel/envoy && \
-    phpstan/phpstan && \
-    nunomaduro/phpinsights && \
-    sebastian/phpcpd && \
+#     phpstan/phpstan && \
+#     nunomaduro/phpinsights && \
+#     sebastian/phpcpd && \
     # composer config --global cache-dir /opt/data/cache/composer/cache-dir && \
     # composer config --global cache-vcs-dir /opt/data/cache/composer/cache-vcs-dir && \
     # composer config --global cache-repo-dir /opt/data/cache/composer/cache-repo-dir && \
@@ -66,10 +66,10 @@ RUN composer global require hirak/prestissimo && \
     ln -sn /root/.composer/vendor/bin/phpmd /usr/local/bin/phpmd && \
     ln -sn /root/.composer/vendor/bin/phpcs /usr/local/bin/phpcs && \
     ln -sn /root/.composer/vendor/bin/phpunit-bridge /usr/local/bin/phpunit-bridge && \
-    ln -sn /root/.composer/vendor/bin/envoy /usr/local/bin/envoy && \
-    ln -sn /root/.composer/vendor/bin/phpstan /usr/local/bin/phpstan && \
-    ln -sn /root/.composer/vendor/bin/phpinsights /usr/local/bin/phpinsights && \
-    ln -sn /root/.composer/vendor/bin/phpcpd /usr/local/bin/phpcpd
+    ln -sn /root/.composer/vendor/bin/envoy /usr/local/bin/envoy
+#     ln -sn /root/.composer/vendor/bin/phpstan /usr/local/bin/phpstan && \
+#     ln -sn /root/.composer/vendor/bin/phpinsights /usr/local/bin/phpinsights && \
+#     ln -sn /root/.composer/vendor/bin/phpcpd /usr/local/bin/phpcpd
 
 #RUN wget https://github.com/phpDocumentor/phpDocumentor2/releases/download/v2.9.0/phpDocumentor.phar
 #RUN echo -e "#!/bin/bash\n\nphp /phpDocumentor.phar \$@" >> /usr/local/bin/phpdoc && \
@@ -79,25 +79,24 @@ RUN parallel-lint -V && \
     var-dump-check && \
     phpunit --version && \
     phpcov -V && \
-    phpcs --version && \
-    echo "Install NODE AND YARN" && \
-    apk add --no-cache nodejs
+    phpcs --version
 #RUN apk add --no-cache nodejs nodejs-npm yarn
 
 ENV YARN_VERSION 1.21.1
 ADD https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v${YARN_VERSION}.tar.gz /opt/yarn.tar.gz
 
-RUN yarnDirectory=/opt && \
+RUN echo "Install NODE AND YARN" && \
+   apk add --no-cache nodejs && \
+   yarnDirectory=/opt && \
    mkdir -p "$yarnDirectory" && \
    tar -xzf /opt/yarn.tar.gz -C "$yarnDirectory" && \
    ls -l "$yarnDirectory" && \
    mv "$yarnDirectory/yarn-v${YARN_VERSION}" "$yarnDirectory/yarn" && \
    ln -s "$yarnDirectory/yarn/bin/yarn" /usr/local/bin/ && \
-   rm /opt/yarn.tar.gz
-
-RUN node -v && \
-    yarn -v && \
-    curl -V
+   rm /opt/yarn.tar.gz && \
+   node -v && \
+   yarn -v && \
+   curl -V
 #RUN npm -v
 #RUN npx -v
 
