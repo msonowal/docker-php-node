@@ -14,17 +14,19 @@ RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 RUN php -m \
   && apk add --no-cache \
-      pcre-dev ${PHPIZE_DEPS} \ 
+      pcre-dev ${PHPIZE_DEPS} \
+      libgmp-dev \
       freetype libjpeg-turbo freetype-dev libjpeg-turbo-dev \
   && docker-php-ext-configure gd \
     --with-freetype \
     --with-jpeg \
   && docker-php-ext-install -j$(nproc) gd \
   && pecl install redis-5.1.1 \
+  && pecl install zip-1.15.5 \
   && pecl install xdebug-2.9.0 \
   && docker-php-ext-enable xdebug redis \
-  && docker-php-ext-install bcmath pcntl opcache pdo_mysql sockets sockets \
-  && apk del --no-cache freetype-dev libjpeg-turbo-dev pcre-dev ${PHPIZE_DEPS}
+  && docker-php-ext-install bcmath pcntl opcache pdo_mysql sockets sockets gmp \
+  && apk del --no-cache freetype-dev libjpeg-turbo-dev pcre-dev libgmp-dev ${PHPIZE_DEPS}
 
 # inspired from here
 # https://stackoverflow.com/a/48444443/1125961
