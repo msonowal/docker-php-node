@@ -17,12 +17,12 @@ RUN php -m \
       pcre-dev ${PHPIZE_DEPS} \
       gmp-dev \
       freetype libjpeg-turbo freetype-dev libjpeg-turbo-dev \
-      libzip libpng-dev zlib-dev libzip-dev \
+      libzip zip libpng-dev zlib-dev libzip-dev \
   && docker-php-ext-configure gd \
     --with-freetype \
     --with-jpeg \
   && docker-php-ext-install -j$(nproc) gd \
-  && docker-php-ext-configure zip --with-libzip \
+#   && docker-php-ext-configure zip --with-libzip \
   && docker-php-ext-install zip \
   && pecl install redis-5.1.1 \
 #   && pecl install zip-1.15.5 \
