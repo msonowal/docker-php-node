@@ -15,6 +15,7 @@ RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 RUN php -m \
   && apk add --no-cache \
       pcre-dev ${PHPIZE_DEPS} \
+      libzip \
       gmp-dev \
       freetype libjpeg-turbo freetype-dev libjpeg-turbo-dev \
   && docker-php-ext-configure gd \
