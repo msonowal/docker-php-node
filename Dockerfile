@@ -15,15 +15,17 @@ RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 RUN php -m \
   && apk add --no-cache \
       pcre-dev ${PHPIZE_DEPS} \
-      libzip \
       gmp-dev \
       freetype libjpeg-turbo freetype-dev libjpeg-turbo-dev \
+      libzip libpng-dev zlib-dev libzip-dev \
   && docker-php-ext-configure gd \
     --with-freetype \
     --with-jpeg \
   && docker-php-ext-install -j$(nproc) gd \
+  && docker-php-ext-configure zip --with-libzip \
+  && docker-php-ext-install zip \
   && pecl install redis-5.1.1 \
-  && pecl install zip-1.15.5 \
+#   && pecl install zip-1.15.5 \
   && pecl install xdebug-2.9.0 \
   && docker-php-ext-enable xdebug redis \
   && docker-php-ext-install bcmath pcntl opcache pdo_mysql sockets sockets gmp \
