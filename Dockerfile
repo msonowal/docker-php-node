@@ -18,6 +18,7 @@ RUN php -m \
       gmp-dev \
       freetype libjpeg-turbo freetype-dev libjpeg-turbo-dev \
       libzip zip libpng-dev zlib-dev libzip-dev \
+      git \
   && docker-php-ext-configure gd \
     --with-freetype \
     --with-jpeg \
@@ -29,7 +30,7 @@ RUN php -m \
   && pecl install xdebug-2.9.0 \
   && docker-php-ext-enable xdebug redis \
   && docker-php-ext-install bcmath pcntl opcache pdo_mysql sockets sockets gmp \
-  && apk del --no-cache freetype-dev libjpeg-turbo-dev pcre-dev gmp-dev ${PHPIZE_DEPS}
+  && apk del --no-cache freetype-dev libjpeg-turbo-dev pcre-dev gmp-dev libzip-dev libpng-dev ${PHPIZE_DEPS}
 
 # inspired from here
 # https://stackoverflow.com/a/48444443/1125961
