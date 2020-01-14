@@ -3,10 +3,10 @@ FROM php:7.4-fpm-alpine
 LABEL maintainer="manash.sonowal@conversionbug.com"
 
 LABEL org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.vcs-url="https://github.com/msonowal/docker-php7.1-node-8.git" \
+      org.label-schema.vcs-url="https://github.com/msonowal/docker-php-node.git" \
       org.label-schema.vcs-ref=$VCS_REF \
       org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP 7.4 and NodeJS and Yarn with additional PHP extensions on official PHP Alpine flavour" \
-      org.label-schema.url="https://github.com/msonowal/docker-php7.1-node-8"
+      org.label-schema.url="https://github.com/msonowal/docker-php-node"
 
 RUN echo $PHP_INI_DIR
 # Use the default development configuration
@@ -30,8 +30,9 @@ RUN php -m \
 #   && pecl install zip-1.15.5 \
   && pecl install xdebug-2.9.0 \
   && docker-php-ext-enable xdebug redis \
-  && docker-php-ext-install bcmath pcntl opcache pdo_mysql sockets sockets gmp \
-  && apk del --no-cache freetype-dev libjpeg-turbo-dev pcre-dev libzip-dev libpng-dev ${PHPIZE_DEPS}
+  && docker-php-ext-install bcmath pcntl opcache pdo_mysql sockets gmp \
+  && apk del --no-cache freetype-dev libjpeg-turbo-dev pcre-dev libzip-dev libpng-dev ${PHPIZE_DEPS} \
+  && php -m
 
 # inspired from here
 # https://stackoverflow.com/a/48444443/1125961
@@ -44,7 +45,6 @@ RUN ls "$PHP_INI_DIR" -lha && \
     ls "$PHP_INI_DIR/conf.d" -lha && \
     php --ini && \
     php -v &&\
-    php -m && \
     php -i
 
 RUN echo "---> Installing Composer" && \
