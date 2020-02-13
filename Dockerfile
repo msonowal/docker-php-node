@@ -31,6 +31,7 @@ RUN php -m \
   && pecl install xdebug-2.9.0 \
   && docker-php-ext-enable xdebug redis \
   && docker-php-ext-install bcmath pcntl opcache pdo_mysql sockets gmp \
+  && apk add openssh-client \
   && apk del --no-cache freetype-dev libjpeg-turbo-dev pcre-dev libzip-dev libpng-dev ${PHPIZE_DEPS} \
   && php -m
 
@@ -89,7 +90,7 @@ RUN parallel-lint -V && \
     phpcs --version
 #RUN apk add --no-cache nodejs nodejs-npm yarn
 
-ENV YARN_VERSION 1.21.1
+ENV YARN_VERSION 1.22.0
 ADD https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v${YARN_VERSION}.tar.gz /opt/yarn.tar.gz
 
 RUN echo "Install NODE AND YARN" && \
