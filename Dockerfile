@@ -3,10 +3,10 @@ FROM alpine:3.9
 MAINTAINER Manash Sonowal "manash.sonowal@conversionbug.com"
 
 LABEL org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.vcs-url="https://github.com/msonowal/docker-php7.1-node-8.git" \
+      org.label-schema.vcs-url="https://github.com/msonowal/docker-php-node.git" \
       org.label-schema.vcs-ref=$VCS_REF \
       org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP CLI 7.1 and NodeJS and Yarn with additional PHP extensions, and Alpine 3.8" \
-      org.label-schema.url="https://github.com/msonowal/docker-php7.1-node-8"
+      org.label-schema.url="https://github.com/msonowal/docker-php-node"
 
 ENV \
     # When using Composer, disable the warning about running commands as root/super user
@@ -128,7 +128,7 @@ RUN echo "Install NODE AND YARN"
 #RUN apk add --no-cache nodejs nodejs-npm yarn
 RUN apk add --no-cache nodejs
 
-ENV YARN_VERSION 1.19.1
+ENV YARN_VERSION 1.22.0
 ADD https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v${YARN_VERSION}.tar.gz /opt/yarn.tar.gz
 
 RUN yarnDirectory=/opt && \
