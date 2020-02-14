@@ -1,12 +1,12 @@
 FROM alpine:3.9
 
-MAINTAINER Manash Sonowal "manash.sonowal@conversionbug.com"
+MAINTAINER Manash Sonowal "manash149@gmail.com"
 
 LABEL org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.vcs-url="https://github.com/msonowal/docker-php7.1-node-8.git" \
+      org.label-schema.vcs-url="https://github.com/msonowal/docker-php-node.git" \
       org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP CLI 7.1 and NodeJS and Yarn with additional PHP extensions, and Alpine 3.8" \
-      org.label-schema.url="https://github.com/msonowal/docker-php7.1-node-8"
+      org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP CLI 7.1 and NodeJS and Yarn with additional PHP extensions, and Alpine 3.9" \
+      org.label-schema.url="https://github.com/msonowal/docker-php-node"
 
 ENV \
     # When using Composer, disable the warning about running commands as root/super user
@@ -73,36 +73,34 @@ RUN set -x \
     && echo "https://repos.php.earth/alpine/v3.9" >> /etc/apk/repositories \
     && apk add --no-cache $DEPS
 
- 
 RUN ls /usr/lib/php/7.1 -l
-
-RUN php --ini
 
 # Enable Xdebug Copy xdebug configuration for remote debugging
 COPY ./xdebug.ini /etc/php7.1/conf.d/xdebug.ini
 
-RUN php -v
-
+RUN php --ini && \
+    php -m && \
+    php -v
+    
 RUN echo "---> Installing Composer" && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
     echo "---> Cleaning up" && \
-    rm -rf /tmp/*
+    rm -rf /tmp/* && \
+    composer -V
 
-RUN composer -V
+RUN composer config --global cache-dir /opt/data/cache/composer/cache-dir
+RUN composer config --global cache-vcs-dir /opt/data/cache/composer/cache-vcs-dir
+RUN composer config --global cache-repo-dir /opt/data/cache/composer/cache-repo-dir
 
-RUN /usr/local/bin/composer global require jakub-onderka/php-parallel-lint && \
-    /usr/local/bin/composer global require jakub-onderka/php-var-dump-check && \
-    /usr/local/bin/composer global require hirak/prestissimo && \
-    /usr/local/bin/composer global require phpunit/phpunit && \
-    /usr/local/bin/composer global require phpunit/phpcov && \
-    /usr/local/bin/composer global require phpmd/phpmd && \
-    /usr/local/bin/composer global require squizlabs/php_codesniffer && \
-    /usr/local/bin/composer global require symfony/phpunit-bridge && \
-    /usr/local/bin/composer global require laravel/envoy
-
-RUN /usr/local/bin/composer config --global cache-dir /opt/data/cache/composer/cache-dir
-RUN /usr/local/bin/composer config --global cache-vcs-dir /opt/data/cache/composer/cache-vcs-dir
-RUN /usr/local/bin/composer config --global cache-repo-dir /opt/data/cache/composer/cache-repo-dir
+RUN composer global require jakub-onderka/php-parallel-lint && \
+    composer global require jakub-onderka/php-var-dump-check && \
+    composer global require hirak/prestissimo && \
+    composer global require phpunit/phpunit && \
+    composer global require phpunit/phpcov && \
+    composer global require phpmd/phpmd && \
+    composer global require squizlabs/php_codesniffer && \
+    composer global require symfony/phpunit-bridge && \
+    composer global require laravel/envoy
 
 #RUN wget https://github.com/phpDocumentor/phpDocumentor2/releases/download/v2.9.0/phpDocumentor.phar
 
@@ -116,13 +114,12 @@ RUN ln -sn /root/.composer/vendor/bin/parallel-lint /usr/local/bin/parallel-lint
     ln -sn /root/.composer/vendor/bin/phpmd /usr/local/bin/phpmd && \
     ln -sn /root/.composer/vendor/bin/phpcs /usr/local/bin/phpcs && \
     ln -sn /root/.composer/vendor/bin/phpcs /usr/local/bin/phpunit-bridge && \
-    ln -sn /root/.composer/vendor/bin/envoy /usr/local/bin/envoy
-
-RUN parallel-lint -V
-RUN var-dump-check
-RUN phpunit --version
-RUN phpcov -V
-RUN phpcs --version
+    ln -sn /root/.composer/vendor/bin/envoy /usr/local/bin/envoy && \
+    parallel-lint -V && \
+    var-dump-check && \
+    phpunit --version && \
+    phpcov -V && \
+    phpcs --version
 
 RUN echo "Install NODE AND YARN"
 #RUN apk add --no-cache nodejs nodejs-npm yarn
@@ -139,14 +136,10 @@ RUN yarnDirectory=/opt && \
   ln -s "$yarnDirectory/yarn/bin/yarn" /usr/local/bin/ && \
   rm /opt/yarn.tar.gz
 
-RUN ls -l /opt
-
-RUN ls -l /opt/yarn 
-
-RUN node -v
-#RUN npm -v
-#RUN npx -v
-RUN yarn -v
-RUN curl -V
+RUN ls -l /opt && \
+    ls -l /opt/yarn && \
+    node -v && \
+    yarn -v && \
+    curl -V
 
 CMD ["php", "-a"]
