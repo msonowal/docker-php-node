@@ -57,7 +57,7 @@ RUN echo "---> Installing Composer" && \
 RUN composer global require hirak/prestissimo && \
     composer global require php-parallel-lint/php-parallel-lint \
     php-parallel-lint/php-console-highlighter \
-    jakub-onderka/php-var-dump-check \
+    #jakub-onderka/php-var-dump-check \
     phpunit/phpunit phpunit/phpcov \
     phpmd/phpmd squizlabs/php_codesniffer \
     symfony/phpunit-bridge \
@@ -70,7 +70,7 @@ RUN composer global require hirak/prestissimo && \
     # composer config --global cache-repo-dir /opt/data/cache/composer/cache-repo-dir && \
     # ln -sn /root/.composer/vendor/bin/parallel-lint /usr/local/bin/parallel-lint && \
     ln -sn /root/.composer/vendor/bin/php-parallel-lint /usr/local/bin/php-parallel-lint && \
-    ln -sn /root/.composer/vendor/bin/var-dump-check /usr/local/bin/var-dump-check && \
+    #ln -sn /root/.composer/vendor/bin/var-dump-check /usr/local/bin/var-dump-check && \
     ln -sn /root/.composer/vendor/bin/phpunit /usr/local/bin/phpunit && \
     ln -sn /root/.composer/vendor/bin/phpcov /usr/local/bin/phpcov && \
     ln -sn /root/.composer/vendor/bin/phpmd /usr/local/bin/phpmd && \
@@ -86,7 +86,7 @@ RUN composer global require hirak/prestissimo && \
 #    chmod +x /usr/local/bin/phpdoc
 
 RUN php-parallel-lint -V && \
-    var-dump-check && \
+    #var-dump-check && \
     phpunit --version && \
     phpcov -V && \
     phpcs --version
