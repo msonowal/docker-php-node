@@ -25,6 +25,7 @@ RUN php -m \
     --with-jpeg \
   && docker-php-ext-install -j$(nproc) gd \
   && docker-php-ext-install zip \
+  && docker-php-ext-install exif \
   && pecl install redis-5.2.1 \
 #   && pecl install zip-1.15.5 \
   && pecl install xdebug-2.9.4 \
