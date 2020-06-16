@@ -65,7 +65,7 @@ RUN composer global require hirak/prestissimo && \
     laravel/envoy \
     phpstan/phpstan \
     nunomaduro/phpinsights \
-    sebastian/phpcpd && \
+    # sebastian/phpcpd && \
     # composer config --global cache-dir /opt/data/cache/composer/cache-dir && \
     # composer config --global cache-vcs-dir /opt/data/cache/composer/cache-vcs-dir && \
     # composer config --global cache-repo-dir /opt/data/cache/composer/cache-repo-dir && \
@@ -78,7 +78,10 @@ RUN composer global require hirak/prestissimo && \
     ln -sn /root/.composer/vendor/bin/phpcs /usr/local/bin/phpcs && \
     ln -sn /root/.composer/vendor/bin/phpunit-bridge /usr/local/bin/phpunit-bridge && \
     ln -sn /root/.composer/vendor/bin/envoy /usr/local/bin/envoy && \
-    ln -sn /root/.composer/vendor/bin/phpstan /usr/local/bin/phpstan
+    ln -sn /root/.composer/vendor/bin/phpstan /usr/local/bin/phpstan && \
+    wget https://phar.phpunit.de/phpcpd.phar && \
+    mv phpcpd.phar /usr/local/bin/phpcpd
+    # php phpcpd.phar --version
 #     ln -sn /root/.composer/vendor/bin/phpinsights /usr/local/bin/phpinsights && \
 #     ln -sn /root/.composer/vendor/bin/phpcpd /usr/local/bin/phpcpd
 
