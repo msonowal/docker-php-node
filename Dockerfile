@@ -55,8 +55,8 @@ RUN echo "---> Installing Composer" && \
     composer -V
 
 RUN composer global require hirak/prestissimo && \
-    composer global require php-parallel-lint/php-parallel-lint \
-    php-parallel-lint/php-console-highlighter \
+    #composer global require php-parallel-lint/php-parallel-lint \
+    #php-parallel-lint/php-console-highlighter \
     #jakub-onderka/php-var-dump-check \
     phpunit/phpunit phpunit/phpcov \
     phpmd/phpmd squizlabs/php_codesniffer \
@@ -85,11 +85,11 @@ RUN composer global require hirak/prestissimo && \
 #RUN echo -e "#!/bin/bash\n\nphp /phpDocumentor.phar \$@" >> /usr/local/bin/phpdoc && \
 #    chmod +x /usr/local/bin/phpdoc
 
-RUN php-parallel-lint -V && \
-    #var-dump-check && \
-    phpunit --version && \
+RUN phpunit --version && \
     phpcov -V && \
     phpcs --version
+    #php-parallel-lint -V && \
+    #var-dump-check && \
 #RUN apk add --no-cache nodejs nodejs-npm yarn
 
 ENV YARN_VERSION 1.22.4
