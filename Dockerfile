@@ -64,7 +64,7 @@ RUN composer global require hirak/prestissimo && \
     symfony/phpunit-bridge \
     laravel/envoy \
     phpstan/phpstan \
-    nunomaduro/phpinsights \
+    nunomaduro/phpinsights && \
     # sebastian/phpcpd && \
     # composer config --global cache-dir /opt/data/cache/composer/cache-dir && \
     # composer config --global cache-vcs-dir /opt/data/cache/composer/cache-vcs-dir && \
