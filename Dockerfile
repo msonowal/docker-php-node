@@ -1,6 +1,6 @@
 FROM php:7.1-fpm-alpine
 
-LABEL maintainer="manash.sonowal@conversionbug.com"
+LABEL maintainer="manash149@gmail.com"
 
 LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-url="https://github.com/msonowal/docker-php-node.git" \
