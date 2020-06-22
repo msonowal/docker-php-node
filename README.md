@@ -1,9 +1,16 @@
-# docker-php7.1-node-8
+# docker-php and node LTS
+
+
+# TAGS
+
+`php74` (master) | latest
+
+`php71`
+
 with XDEBUG enabled
 
-and
-npm and Yarn pre-installed
+and npm and Yarn pre-installed
 
-A simple docker image for development and production environments
+A simple docker image for development and CI, testing environments can be used with CI runners (e.g. gitlab ) etc
 
 
