@@ -72,7 +72,7 @@ RUN composer global require hirak/prestissimo && \
     ln -sn /root/.composer/vendor/bin/phpmd /usr/local/bin/phpmd && \
     ln -sn /root/.composer/vendor/bin/phpcs /usr/local/bin/phpcs && \
     ln -sn /root/.composer/vendor/bin/phpunit-bridge /usr/local/bin/phpunit-bridge && \
-    ln -sn /root/.composer/vendor/bin/envoy /usr/local/bin/envoy
+    ln -sn /root/.composer/vendor/bin/envoy /usr/local/bin/envoy && \
     ln -sn /root/.composer/vendor/bin/phpstan /usr/local/bin/phpstan && \
     wget https://phar.phpunit.de/phpcpd.phar && \
     mv phpcpd.phar /usr/local/bin/phpcpd
