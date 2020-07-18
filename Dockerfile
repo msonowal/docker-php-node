@@ -1,11 +1,11 @@
 FROM php:7.4-fpm-alpine
 
-LABEL maintainer="manash.sonowal@conversionbug.com"
+LABEL maintainer="manash149@gmail.com"
 
 LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-url="https://github.com/msonowal/docker-php-node.git" \
       org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP 7.4 and NodeJS and Yarn with additional PHP extensions on official PHP Alpine flavour" \
+      org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP 7.4 and NodeJS and Yarn with additional PHP extensions on official PHP Alpine flavour to use with Gitlab and other CI enviornments" \
       org.label-schema.url="https://github.com/msonowal/docker-php-node"
 
 RUN echo $PHP_INI_DIR
@@ -26,9 +26,9 @@ RUN php -m \
   && docker-php-ext-install -j$(nproc) gd \
   && docker-php-ext-install zip \
   && docker-php-ext-install exif \
-  && pecl install redis-5.2.1 \
+  && pecl install redis-5.3.1 \
 #   && pecl install zip-1.15.5 \
-  && pecl install xdebug-2.9.4 \
+  && pecl install xdebug-2.9.6 \
   && docker-php-ext-enable xdebug redis \
   && docker-php-ext-install bcmath pcntl opcache pdo_mysql sockets gmp \
   && apk add openssh-client \
