@@ -26,9 +26,9 @@ RUN php -m \
   && docker-php-ext-install -j$(nproc) gd \
   && docker-php-ext-install zip \
   && docker-php-ext-install exif \
-  && pecl install redis-5.3.1 \
+  && pecl install redis-5.3.2 \
 #   && pecl install zip-1.15.5 \
-  && pecl install xdebug-2.9.6 \
+  && pecl install xdebug-2.9.8 \
   && docker-php-ext-enable xdebug redis \
   && docker-php-ext-install bcmath pcntl opcache pdo_mysql sockets gmp \
   && apk add openssh-client \
@@ -48,14 +48,16 @@ RUN ls "$PHP_INI_DIR" -lha && \
     php -v &&\
     php -i
 
+# php composer-setup.php --version=1.10.16
+
 RUN echo "---> Installing Composer" && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
     echo "---> Cleaning up" && \
     rm -rf /tmp/* && \
     composer -V
 
-RUN composer global require hirak/prestissimo && \
-    composer global require \
+# RUN composer global require hirak/prestissimo && \
+RUN composer global require \
     #php-parallel-lint/php-parallel-lint \
     #php-parallel-lint/php-console-highlighter \
     #jakub-onderka/php-var-dump-check \
@@ -80,7 +82,8 @@ RUN composer global require hirak/prestissimo && \
     ln -sn /root/.composer/vendor/bin/envoy /usr/local/bin/envoy && \
     ln -sn /root/.composer/vendor/bin/phpstan /usr/local/bin/phpstan && \
     wget https://phar.phpunit.de/phpcpd.phar && \
-    mv phpcpd.phar /usr/local/bin/phpcpd
+    mv phpcpd.phar /usr/local/bin/phpcpd && \
+    chmod +x /usr/local/bin/phpcpd
     # php phpcpd.phar --version
 #     ln -sn /root/.composer/vendor/bin/phpinsights /usr/local/bin/phpinsights && \
 #     ln -sn /root/.composer/vendor/bin/phpcpd /usr/local/bin/phpcpd
@@ -90,13 +93,14 @@ RUN composer global require hirak/prestissimo && \
 #    chmod +x /usr/local/bin/phpdoc
 
 RUN phpunit --version && \
-    phpcov -V && \
-    phpcs --version
+    phpcov --version && \
+    phpcs --version && \
+    phpcpd --version
     #php-parallel-lint -V && \
     #var-dump-check && \
 #RUN apk add --no-cache nodejs nodejs-npm yarn
 
-ENV YARN_VERSION 1.22.4
+ENV YARN_VERSION 1.22.5
 ADD https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v${YARN_VERSION}.tar.gz /opt/yarn.tar.gz
 
 RUN echo "Install NODE AND YARN" && \
@@ -104,14 +108,12 @@ RUN echo "Install NODE AND YARN" && \
    yarnDirectory=/opt && \
    mkdir -p "$yarnDirectory" && \
    tar -xzf /opt/yarn.tar.gz -C "$yarnDirectory" && \
-   ls -l "$yarnDirectory" && \
+  #  ls -l "$yarnDirectory" && \
    mv "$yarnDirectory/yarn-v${YARN_VERSION}" "$yarnDirectory/yarn" && \
    ln -s "$yarnDirectory/yarn/bin/yarn" /usr/local/bin/ && \
    rm /opt/yarn.tar.gz && \
    node -v && \
    yarn -v && \
    curl -V
-#RUN npm -v
-#RUN npx -v
 
 CMD ["php", "-a"]
