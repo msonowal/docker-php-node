@@ -83,10 +83,10 @@ RUN composer global require \
     ln -sn /root/.composer/vendor/bin/phpstan /usr/local/bin/phpstan && \
     wget https://phar.phpunit.de/phpcpd.phar && \
     mv phpcpd.phar /usr/local/bin/phpcpd && \
-    chmod +x /usr/local/bin/phpcpd
-    # php phpcpd.phar --version
-#     ln -sn /root/.composer/vendor/bin/phpinsights /usr/local/bin/phpinsights && \
-#     ln -sn /root/.composer/vendor/bin/phpcpd /usr/local/bin/phpcpd
+    chmod +x /usr/local/bin/phpcpd && \
+    wget https://get.sensiolabs.org/security-checker.phar && \
+    mv security-checker.phar /usr/local/bin/security-checker && \
+    chmod +x /usr/local/bin/security-checker
 
 #RUN wget https://github.com/phpDocumentor/phpDocumentor2/releases/download/v2.9.0/phpDocumentor.phar
 #RUN echo -e "#!/bin/bash\n\nphp /phpDocumentor.phar \$@" >> /usr/local/bin/phpdoc && \
