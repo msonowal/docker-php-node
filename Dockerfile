@@ -1,11 +1,11 @@
-FROM php:7.4-fpm-alpine
+FROM php:8-fpm-alpine
 
 LABEL maintainer="manash149@gmail.com"
 
 LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-url="https://github.com/msonowal/docker-php-node.git" \
       org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP 7.4 and NodeJS and Yarn with additional PHP extensions on official PHP Alpine flavour to use with Gitlab and other CI enviornments" \
+      org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP 8 and NodeJS LTS and Yarn with additional PHP extensions on official PHP Alpine flavour to use with Gitlab and other CI enviornments Fully tested" \
       org.label-schema.url="https://github.com/msonowal/docker-php-node"
 
 RUN echo $PHP_INI_DIR
@@ -28,7 +28,7 @@ RUN php -m \
   && docker-php-ext-install exif \
   && pecl install redis-5.3.2 \
 #   && pecl install zip-1.15.5 \
-  && pecl install xdebug-2.9.8 \
+  && pecl install xdebug-3.0.1 \
   && docker-php-ext-enable xdebug redis \
   && docker-php-ext-install bcmath pcntl opcache pdo_mysql sockets gmp \
   && apk add openssh-client \
@@ -67,10 +67,6 @@ RUN composer global require \
     laravel/envoy \
     phpstan/phpstan \
     nunomaduro/phpinsights && \
-    # sebastian/phpcpd && \
-    # composer config --global cache-dir /opt/data/cache/composer/cache-dir && \
-    # composer config --global cache-vcs-dir /opt/data/cache/composer/cache-vcs-dir && \
-    # composer config --global cache-repo-dir /opt/data/cache/composer/cache-repo-dir && \
     # ln -sn /root/.composer/vendor/bin/parallel-lint /usr/local/bin/parallel-lint && \
     #ln -sn /root/.composer/vendor/bin/php-parallel-lint /usr/local/bin/php-parallel-lint && \
     #ln -sn /root/.composer/vendor/bin/var-dump-check /usr/local/bin/var-dump-check && \
