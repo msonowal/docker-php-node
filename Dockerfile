@@ -65,8 +65,8 @@ RUN composer global require \
     phpmd/phpmd squizlabs/php_codesniffer \
     symfony/phpunit-bridge \
     laravel/envoy \
-    phpstan/phpstan \
-    nunomaduro/phpinsights && \
+    phpstan/phpstan && \
+    #nunomaduro/phpinsights && \
     # ln -sn /root/.composer/vendor/bin/parallel-lint /usr/local/bin/parallel-lint && \
     #ln -sn /root/.composer/vendor/bin/php-parallel-lint /usr/local/bin/php-parallel-lint && \
     #ln -sn /root/.composer/vendor/bin/var-dump-check /usr/local/bin/var-dump-check && \
