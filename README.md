@@ -3,7 +3,9 @@
 
 # TAGS
 
-`php74` (master/latest)
+`php8` (master/latest)
+
+`php74` (PHP 7.3)
 
 `php73` (PHP 7.3)
 
@@ -12,7 +14,7 @@
 `php71` (PHP 7.1)
 
 
-With composer installed 2.0 with 7.4 onwards as of now
+With composer installed 2.0 upto PHP 8 onwards as of now
 
 with XDEBUG enabled
 
