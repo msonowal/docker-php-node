@@ -100,7 +100,7 @@ ENV YARN_VERSION 1.22.5
 ADD https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v${YARN_VERSION}.tar.gz /opt/yarn.tar.gz
 
 RUN echo "Install NODE AND YARN" && \
-   apk add --no-cache nodejs && \
+   apk add --no-cache nodejs npm && \
    yarnDirectory=/opt && \
    mkdir -p "$yarnDirectory" && \
    tar -xzf /opt/yarn.tar.gz -C "$yarnDirectory" && \
@@ -110,6 +110,8 @@ RUN echo "Install NODE AND YARN" && \
    rm /opt/yarn.tar.gz && \
    node -v && \
    yarn -v && \
+   npm -v && \
    curl -V
+   
 
 CMD ["php", "-a"]
