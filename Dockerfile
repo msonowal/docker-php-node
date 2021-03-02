@@ -80,8 +80,8 @@ RUN composer global require \
     wget https://phar.phpunit.de/phpcpd.phar && \
     mv phpcpd.phar /usr/local/bin/phpcpd && \
     chmod +x /usr/local/bin/phpcpd && \
-    wget https://get.sensiolabs.org/security-checker.phar && \
-    mv security-checker.phar /usr/local/bin/security-checker && \
+    wget https://github.com/fabpot/local-php-security-checker/releases/download/v1.0.0/local-php-security-checker_1.0.0_linux_amd64 && \
+    mv local-php-security-checker_1.0.0_linux_amd64 /usr/local/bin/security-checker && \
     chmod +x /usr/local/bin/security-checker
 
 #RUN wget https://github.com/phpDocumentor/phpDocumentor2/releases/download/v2.9.0/phpDocumentor.phar
@@ -100,7 +100,7 @@ ENV YARN_VERSION 1.22.5
 ADD https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v${YARN_VERSION}.tar.gz /opt/yarn.tar.gz
 
 RUN echo "Install NODE AND YARN" && \
-   apk add --no-cache nodejs && \
+   apk add --no-cache nodejs npm && \
    yarnDirectory=/opt && \
    mkdir -p "$yarnDirectory" && \
    tar -xzf /opt/yarn.tar.gz -C "$yarnDirectory" && \
@@ -110,6 +110,7 @@ RUN echo "Install NODE AND YARN" && \
    rm /opt/yarn.tar.gz && \
    node -v && \
    yarn -v && \
+   npm -v && \
    curl -V
 
 CMD ["php", "-a"]
