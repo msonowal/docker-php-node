@@ -8,31 +8,17 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP 7.4 and NodeJS and Yarn with additional PHP extensions on official PHP Alpine flavour to use with Gitlab and other CI enviornments" \
       org.label-schema.url="https://github.com/msonowal/docker-php-node"
 
-RUN echo $PHP_INI_DIR
+#RUN echo $PHP_INI_DIR
 # Use the default development configuration
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+
+RUN chmod +x /usr/local/bin/install-php-extensions && sync
+
 RUN php -m \
-  && apk add --no-cache \
-      pcre-dev ${PHPIZE_DEPS} \
-      gmp \
-      gmp-dev \
-      freetype libjpeg-turbo freetype-dev libjpeg-turbo-dev \
-      libzip zip libpng-dev zlib-dev libzip-dev \
-      git \
-  && docker-php-ext-configure gd \
-    --with-freetype \
-    --with-jpeg \
-  && docker-php-ext-install -j$(nproc) gd \
-  && docker-php-ext-install zip \
-  && docker-php-ext-install exif \
-  && pecl install redis-5.3.2 \
-#   && pecl install zip-1.15.5 \
-  && pecl install xdebug-2.9.8 \
-  && docker-php-ext-enable xdebug redis \
-  && docker-php-ext-install bcmath pcntl opcache pdo_mysql sockets gmp \
+  && install-php-extensions bcmath pcntl zip opcache pdo_mysql sockets gmp gd exif xdebug redis \
   && apk add openssh-client \
-  && apk del --no-cache freetype-dev libjpeg-turbo-dev pcre-dev libzip-dev libpng-dev ${PHPIZE_DEPS} \
   && php -m
 
 # inspired from here
@@ -67,10 +53,6 @@ RUN composer global require \
     laravel/envoy \
     phpstan/phpstan \
     nunomaduro/phpinsights && \
-    # sebastian/phpcpd && \
-    # composer config --global cache-dir /opt/data/cache/composer/cache-dir && \
-    # composer config --global cache-vcs-dir /opt/data/cache/composer/cache-vcs-dir && \
-    # composer config --global cache-repo-dir /opt/data/cache/composer/cache-repo-dir && \
     # ln -sn /root/.composer/vendor/bin/parallel-lint /usr/local/bin/parallel-lint && \
     #ln -sn /root/.composer/vendor/bin/php-parallel-lint /usr/local/bin/php-parallel-lint && \
     #ln -sn /root/.composer/vendor/bin/var-dump-check /usr/local/bin/var-dump-check && \
@@ -87,10 +69,6 @@ RUN composer global require \
     wget https://github.com/fabpot/local-php-security-checker/releases/download/v1.0.0/local-php-security-checker_1.0.0_linux_amd64 && \
     mv local-php-security-checker_1.0.0_linux_amd64 /usr/local/bin/security-checker && \
     chmod +x /usr/local/bin/security-checker
-
-#RUN wget https://github.com/phpDocumentor/phpDocumentor2/releases/download/v2.9.0/phpDocumentor.phar
-#RUN echo -e "#!/bin/bash\n\nphp /phpDocumentor.phar \$@" >> /usr/local/bin/phpdoc && \
-#    chmod +x /usr/local/bin/phpdoc
 
 RUN phpunit --version && \
     phpcov --version && \
