@@ -1,7 +1,11 @@
 # docker-php and node LTS
 
 
+![Docker Pulls](https://img.shields.io/docker/pulls/msonowal/docker-php-node.svg)
+
 # TAGS
+
+https://hub.docker.com/repository/docker/msonowal/docker-php-node/tags?page=1&ordering=last_updated
 
 `php8` (master/latest)
 
