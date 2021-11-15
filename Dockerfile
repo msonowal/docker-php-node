@@ -59,7 +59,10 @@ RUN composer global require hirak/prestissimo && \
     ln -sn /root/.composer/vendor/bin/envoy /usr/local/bin/envoy && \
     ln -sn /root/.composer/vendor/bin/phpstan /usr/local/bin/phpstan && \
     wget https://phar.phpunit.de/phpcpd.phar && \
-    mv phpcpd.phar /usr/local/bin/phpcpd
+    mv phpcpd.phar /usr/local/bin/phpcpd && \
+    wget https://github.com/fabpot/local-php-security-checker/releases/download/v1.0.0/local-php-security-checker_1.0.0_linux_amd64 && \
+    mv local-php-security-checker_1.0.0_linux_amd64 /usr/local/bin/security-checker && \
+    chmod +x /usr/local/bin/security-checker
 #     ln -sn /root/.composer/vendor/bin/phpinsights /usr/local/bin/phpinsights && \
 
 #RUN wget https://github.com/phpDocumentor/phpDocumentor2/releases/download/v2.9.0/phpDocumentor.phar
