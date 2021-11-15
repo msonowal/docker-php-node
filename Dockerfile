@@ -12,31 +12,15 @@ RUN echo $PHP_INI_DIR
 # Use the default development configuration
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+RUN chmod +x /usr/local/bin/install-php-extensions && sync
+
 RUN php -m \
-  && apk add --no-cache \
-      pcre-dev ${PHPIZE_DEPS} \
+      && install-php-extensions bcmath pcntl zip opcache pdo_mysql sockets gmp gd exif xdebug redis mongodb \
+      && apk add --no-cache \
       git \
-      gmp \
-      gmp-dev \
-      freetype libjpeg-turbo freetype-dev libjpeg-turbo-dev \
-      libzip zip libpng-dev zlib-dev libzip-dev \
-      git \
-  && docker-php-ext-configure gd \
-    --with-freetype \
-    --with-jpeg \
-  && docker-php-ext-install -j$(nproc) gd \
-#   && docker-php-ext-configure zip --with-libzip \
-  && docker-php-ext-install zip \
-  && pecl install redis-5.1.1 \
-#   && pecl install zip-1.15.5 \
-  && pecl install xdebug-2.9.0 \
-  && pecl install mongodb \
-  && docker-php-ext-enable mongodb \
-  && docker-php-ext-enable xdebug redis \
-  && docker-php-ext-install bcmath pcntl opcache pdo_mysql sockets gmp \
-  && apk add openssh-client \
-  && apk del --no-cache freetype-dev libjpeg-turbo-dev pcre-dev libzip-dev libpng-dev ${PHPIZE_DEPS} \
-  && php -m
+      openssh-client \
+      && php -m
 
 # inspired from here
 # https://stackoverflow.com/a/48444443/1125961
@@ -53,8 +37,7 @@ RUN ls "$PHP_INI_DIR" -lha && \
 
 RUN echo "---> Installing Composer" && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
-    echo "---> Cleaning up" && \
-    rm -rf /tmp/* && \
+    composer self-update --1 && \
     composer -V
 
 RUN composer global require hirak/prestissimo && \
@@ -66,8 +49,6 @@ RUN composer global require hirak/prestissimo && \
     symfony/phpunit-bridge \
     laravel/envoy \
     phpstan/phpstan && \
-#     nunomaduro/phpinsights && \
-#     sebastian/phpcpd && \
     ln -sn /root/.composer/vendor/bin/parallel-lint /usr/local/bin/parallel-lint && \
     ln -sn /root/.composer/vendor/bin/var-dump-check /usr/local/bin/var-dump-check && \
     ln -sn /root/.composer/vendor/bin/phpunit /usr/local/bin/phpunit && \
@@ -80,7 +61,6 @@ RUN composer global require hirak/prestissimo && \
     wget https://phar.phpunit.de/phpcpd.phar && \
     mv phpcpd.phar /usr/local/bin/phpcpd
 #     ln -sn /root/.composer/vendor/bin/phpinsights /usr/local/bin/phpinsights && \
-#     ln -sn /root/.composer/vendor/bin/phpcpd /usr/local/bin/phpcpd
 
 #RUN wget https://github.com/phpDocumentor/phpDocumentor2/releases/download/v2.9.0/phpDocumentor.phar
 #RUN echo -e "#!/bin/bash\n\nphp /phpDocumentor.phar \$@" >> /usr/local/bin/phpdoc && \
@@ -93,20 +73,21 @@ RUN parallel-lint -V && \
     phpcs --version
 #RUN apk add --no-cache nodejs nodejs-npm yarn
 
-ENV YARN_VERSION 1.22.4
+ENV YARN_VERSION 1.22.5
 ADD https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v${YARN_VERSION}.tar.gz /opt/yarn.tar.gz
 
 RUN echo "Install NODE AND YARN" && \
-   apk add --no-cache nodejs && \
+   apk add --no-cache nodejs npm && \
    yarnDirectory=/opt && \
    mkdir -p "$yarnDirectory" && \
    tar -xzf /opt/yarn.tar.gz -C "$yarnDirectory" && \
-   ls -l "$yarnDirectory" && \
+  #  ls -l "$yarnDirectory" && \
    mv "$yarnDirectory/yarn-v${YARN_VERSION}" "$yarnDirectory/yarn" && \
    ln -s "$yarnDirectory/yarn/bin/yarn" /usr/local/bin/ && \
    rm /opt/yarn.tar.gz && \
    node -v && \
    yarn -v && \
+   npm -v && \
    curl -V
 
 CMD ["php", "-a"]
