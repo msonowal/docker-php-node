@@ -3,10 +3,10 @@ FROM php:7.2-fpm-alpine
 LABEL maintainer="manash149@gmail.com"
 
 LABEL org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.vcs-url="https://github.com/msonowal/docker-php-node.git" \
-      org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP 7.2 and NodeJS and Yarn with additional PHP extensions on official PHP Alpine flavour" \
-      org.label-schema.url="https://github.com/msonowal/docker-php-node"
+    org.label-schema.vcs-url="https://github.com/msonowal/docker-php-node.git" \
+    org.label-schema.vcs-ref=$VCS_REF \
+    org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP 7.2 and NodeJS and Yarn with additional PHP extensions on official PHP Alpine flavour" \
+    org.label-schema.url="https://github.com/msonowal/docker-php-node"
 
 RUN echo $PHP_INI_DIR
 # Use the default development configuration
@@ -16,13 +16,14 @@ ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/do
 RUN chmod +x /usr/local/bin/install-php-extensions && sync
 
 RUN php -m \
-      && install-php-extensions bcmath exif calendar pcntl zip opcache pdo_mysql sockets gmp gd xdebug redis iconv mongodb \
-      && apk add --no-cache \
-      git \
-      openssh-client \
-      wget \
-      && php -m
-
+    && install-php-extensions bcmath exif calendar pcntl zip opcache pdo_mysql sockets gmp gd xdebug redis mongodb \
+    && apk add --no-cache \
+    git \
+    openssh-client \
+    wget \
+    g++ make python2 \
+    && php -m
+# g++ make python these required for node gyp
 # inspired from here
 # https://stackoverflow.com/a/48444443/1125961
 
@@ -94,5 +95,7 @@ RUN echo "Install NODE AND YARN" && \
    yarn -v && \
    npm -v && \
    curl -V
+
+RUN npm install -g node-gyp
 
 CMD ["php", "-a"]
