@@ -1,0 +1,195 @@
+
+FROM php:7.1-fpm-alpine
+
+LABEL maintainer="manash149@gmail.com"
+
+LABEL org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.vcs-url="https://github.com/msonowal/docker-php-node.git" \
+      org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP 7.2 and NodeJS and Yarn with additional PHP extensions on official PHP Alpine flavour" \
+      org.label-schema.url="https://github.com/msonowal/docker-php-node"
+
+RUN echo $PHP_INI_DIR
+# Use the default development configuration
+RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
+
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+RUN chmod +x /usr/local/bin/install-php-extensions && sync
+
+RUN php -m \
+      && install-php-extensions bcmath exif calendar pcntl zip opcache pdo_mysql sockets gmp gd xdebug redis mongodb \
+      && apk add --no-cache \
+      git \
+      openrc \
+      nginx nginx-mod-http-headers-more \
+      openssh-client \
+      wget \
+      && mkdir -p /run/nginx \
+      && mkdir -p /var/tmp/nginx \
+      && php -m
+
+# https://stackoverflow.com/questions/47259946/want-to-do-dusk-test-with-docker-alpine
+RUN apk update && apk upgrade \
+    && echo @edge http://nl.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories \
+    && echo @edge http://nl.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories \
+    && apk add --no-cache \
+    harfbuzz \
+    freetype@edge \
+    ttf-freefont@edge \
+    font-noto \
+    nodejs nodejs-npm \
+    font-noto-emoji@edge \
+    # wqy-zenhei@edge \
+    chromium@edge \
+    chromium-chromedriver@edge \
+    xvfb@edge \
+    supervisor \
+    libstdc++@edge \
+    nss@edge \
+    && rm -rf /var/lib/apt/lists/* \
+    /var/cache/apk/* \
+    /usr/share/man \
+    /tmp/*
+
+COPY local.conf /etc/fonts/local.conf
+# Add Chrome as a user
+RUN mkdir -p /usr/src/app \
+    && adduser -D chrome \
+    && chown -R chrome:chrome /usr/src/app
+# Run Chrome as non-privileged
+# USER chrome
+# WORKDIR /usr/src/app
+ENV CHROME_BIN=/usr/bin/chromium-browser \
+    CHROME_PATH=/usr/lib/chromium/
+
+# Autorun chrome headless
+# ENTRYPOINT ["chromium-browser", "--headless", "--use-gl=swiftshader", "--disable-software-rasterizer", "--disable-dev-shm-usage"]
+ADD configs/supervisord.conf /etc/supervisor/supervisord.conf
+
+ENV YARN_VERSION 1.22.5
+ADD https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v${YARN_VERSION}.tar.gz /opt/yarn.tar.gz
+RUN echo "Install NODE AND YARN" && \
+   yarnDirectory=/opt && \
+   mkdir -p "$yarnDirectory" && \
+   tar -xzf /opt/yarn.tar.gz -C "$yarnDirectory" && \
+   mv "$yarnDirectory/yarn-v${YARN_VERSION}" "$yarnDirectory/yarn" && \
+   ln -s "$yarnDirectory/yarn/bin/yarn" /usr/local/bin/ && \
+   rm /opt/yarn.tar.gz
+
+# inspired from here
+# https://stackoverflow.com/a/48444443/1125961
+
+# Use the default production configuration
+# RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+# Enable Xdebug Copy xdebug configuration for remote debugging
+# COPY ./xdebug.ini "$PHP_INI_DIR/conf.d/xdebug.ini"
+# RUN ls "$PHP_INI_DIR" -lha && \
+#     ls "$PHP_INI_DIR/conf.d" -lha && \
+#     php --ini && \
+#     php -v && \
+#     php -i
+
+RUN echo "---> Installing Composer" && \
+    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
+    # https://getcomposer.org/download/1.10.23/composer.phar
+    composer self-update --1 && \
+    composer -V
+
+RUN composer global require hirak/prestissimo
+# RUN apt-get update -y
+# RUN apt-get install -yq apt-utils zip unzip
+# RUN apt-get install -yq openssl language-pack-en-base
+# RUN apt-get install -yq software-properties-common curl
+# RUN add-apt-repository ppa:ondrej/php
+# RUN sed -i'' 's/archive\.ubuntu\.com/us\.archive\.ubuntu\.com/' /etc/apt/sources.list
+# RUN apt-get update && apt-get upgrade -yq
+# RUN apt-get install -yq libgd-tools
+# RUN apt-get -yq update
+# RUN apt-get install -yq --fix-missing php7.1-fpm php7.1-cli php7.1-xml php7.1-zip php7.1-curl php7.1-bcmath php7.1-json \
+#     php7.1-mbstring php7.1-pgsql php7.1-mysql php7.1-mcrypt php7.1-gd php-xdebug  php-imagick imagemagick nginx
+
+# RUN apt-get install -yq mc lynx mysql-client bzip2 make g++
+
+# RUN echo "---> Installing Composer" && \
+#     php -r "readfile('http://getcomposer.org/installer');" | php -- --install-dir=/usr/local/bin --filename=composer && \
+#     composer self-update --1 && \
+#     composer -V
+
+# ENV COMPOSER_HOME /usr/local/share/composer
+# ENV COMPOSER_ALLOW_SUPERUSER 1
+# ENV PATH "$COMPOSER_HOME:$COMPOSER_HOME/vendor/bin:$PATH"
+# RUN \
+#   mkdir -pv $COMPOSER_HOME && chmod -R g+w $COMPOSER_HOME \
+#   && curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
+#   && curl -o /tmp/composer-setup.sig https://composer.github.io/installer.sig \
+#   && php -r "if (hash('SHA384', file_get_contents('/tmp/composer-setup.php')) \
+#     !== trim(file_get_contents('/tmp/composer-setup.sig'))) { unlink('/tmp/composer-setup.php'); \
+#     echo 'Invalid installer' . PHP_EOL; exit(1); }" \
+#   && php /tmp/composer-setup.php --filename=composer --install-dir=$COMPOSER_HOME 
+
+ADD commands/xvfb.init.sh /etc/init.d/xvfb
+
+ADD commands/start-nginx-ci-project.sh /usr/local/bin/start-nginx-ci-project
+
+# ADD configs/.bowerrc /root/.bowerrc
+
+RUN chmod +x /usr/local/bin/start-nginx-ci-project
+ADD commands/configure-laravel.sh /usr/local/bin/configure-laravel
+
+RUN chmod +x /usr/local/bin/configure-laravel
+
+# RUN \
+#   apt-get install -yq xvfb gconf2 fonts-ipafont-gothic xfonts-cyrillic xfonts-100dpi xfonts-75dpi xfonts-base \
+#     xfonts-scalable \
+#   && chmod +x /etc/init.d/xvfb \
+#   && CHROMEDRIVER_VERSION=`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE` \
+#   && mkdir -p /opt/chromedriver-$CHROMEDRIVER_VERSION \
+#   && curl -sS -o /tmp/chromedriver_linux64.zip \
+#     http://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip \
+#   && unzip -qq /tmp/chromedriver_linux64.zip -d /opt/chromedriver-$CHROMEDRIVER_VERSION \
+#   && rm /tmp/chromedriver_linux64.zip \
+#   && chmod +x /opt/chromedriver-$CHROMEDRIVER_VERSION/chromedriver \
+#   && ln -fs /opt/chromedriver-$CHROMEDRIVER_VERSION/chromedriver /usr/local/bin/chromedriver \
+#   && curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+#   && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
+#   && apt-get -yqq update && apt-get -yqq install google-chrome-stable x11vnc
+
+# RUN apt-get install -yq apt-transport-https
+# RUN apt-get install -yq  python-software-properties
+# RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
+# RUN apt-get update
+# RUN apt-get install -yq nodejs
+# RUN apt-get install -yq git
+# RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+# RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+
+# RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+# RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+# RUN apt-get update && apt-get install -yq yarn
+# RUN yarn global add bower --network-concurrency 1
+# RUN wget https://phar.phpunit.de/phpunit-6.5.14.phar
+# RUN chmod +x phpunit-6.5.14.phar
+# RUN mv phpunit-6.5.14.phar /usr/local/bin/phpunit
+
+# RUN npm install -g node-gyp --unsafe
+# RUN npm install -g node-sass --unsafe
+# RUN npm install -g gulp --unsafe
+
+ADD configs/nginx-default-site /etc/nginx/conf.d/default
+
+VOLUME [ "/var/log/supervisor" ]
+
+# RUN apt-get -yq update
+# RUN apt-get -yq clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+# # RUN apt-get upgrade
+# RUN apt-get autoremove
+
+ADD commands/versions /usr/local/bin/versions
+RUN chmod +x /usr/local/bin/versions
+RUN versions
+
+EXPOSE 80 9515
+
+# CMD ["php7.1-fpm", "-g", "daemon off;"]
+CMD ["php-fpm", "-F"]
+# CMD ["nginx", "-g", "daemon off;"]

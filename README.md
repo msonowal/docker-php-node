@@ -1,9 +1,9 @@
-# docker-php 7 node-8 lts
+# docker-php 7 node lts
 
 
 # TAGS
 
-`php72:latest` (master)
+`php72` (php72)
 
 `php71:latest`
 
@@ -13,5 +13,3 @@ and
 npm and Yarn pre-installed
 
 A simple docker image for development and production environments
-
-
