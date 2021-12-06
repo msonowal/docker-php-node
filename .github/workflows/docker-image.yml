@@ -1,0 +1,29 @@
+name: Docker Image CI
+
+on:
+  schedule:
+    - cron: '* * */7 * 0'
+  push:
+    branches: [ php73 ]
+    # Publish semver tags as releases.
+    tags: ['php*.*.*' ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: docker login
+      env:
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      run: |
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag msonowal/docker-php-node:${GITHUB_REF##*/}
+
+    - name: Docker Push
+      run: docker push msonowal/docker-php-node:${GITHUB_REF##*/}
