@@ -4,7 +4,7 @@ on:
   schedule:
     - cron: '0 23 * * 3'
   push:
-    branches: [ master ]
+    branches: [ master, 'php*.*.*' ]
     # Publish semver tags as releases.
     tags: [ 'v*.*.*', 'php*.*.*' ]
   pull_request:
@@ -24,9 +24,9 @@ jobs:
         DOCKER_USER: ${{secrets.DOCKER_USER}}
         DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
       run: |
-        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag msonowal/docker-php-node:${GITHUB_REF##*/}
-      
+
     - name: Docker Push
       run: docker push msonowal/docker-php-node:${GITHUB_REF##*/}
