@@ -3,12 +3,12 @@ FROM php:8.0-fpm-alpine
 LABEL maintainer="manash149@gmail.com"
 
 LABEL org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.vcs-url="https://github.com/msonowal/docker-php-node.git" \
-      org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP 8 and NodeJS LTS and Yarn with additional PHP extensions on official PHP Alpine flavour to use with Gitlab and other CI enviornments Fully tested" \
-      org.label-schema.url="https://github.com/msonowal/docker-php-node"
+    org.label-schema.vcs-url="https://github.com/msonowal/docker-php-node.git" \
+    org.label-schema.vcs-ref=$VCS_REF \
+    org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP 8 and NodeJS LTS and Yarn with additional PHP extensions on official PHP Alpine flavour to use with Gitlab and other CI enviornments Fully tested" \
+    org.label-schema.url="https://github.com/msonowal/docker-php-node"
 
-RUN echo $PHP_INI_DIR
+# RUN echo $PHP_INI_DIR
 # Use the default development configuration
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
@@ -16,11 +16,11 @@ ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/do
 RUN chmod +x /usr/local/bin/install-php-extensions && sync
 
 RUN php -m \
-      && install-php-extensions bcmath pcntl zip opcache pdo_mysql sockets gmp gd exif xdebug redis \
-      && apk add --no-cache \
-      git \
-      openssh-client \
-      && php -m
+    && install-php-extensions bcmath pcntl zip opcache pdo_mysql sockets gmp gd exif xdebug redis \
+    && apk add --no-cache \
+    git \
+    openssh-client \
+    && php -m
 
 # inspired from here
 # https://stackoverflow.com/a/48444443/1125961
@@ -59,8 +59,8 @@ RUN composer global require \
     wget https://phar.phpunit.de/phpcpd.phar && \
     mv phpcpd.phar /usr/local/bin/phpcpd && \
     chmod +x /usr/local/bin/phpcpd && \
-    wget https://github.com/fabpot/local-php-security-checker/releases/download/v1.0.0/local-php-security-checker_1.0.0_linux_amd64 && \
-    mv local-php-security-checker_1.0.0_linux_amd64 /usr/local/bin/security-checker && \
+    wget https://github.com/fabpot/local-php-security-checker/releases/download/v1.2.0/local-php-security-checker_1.2.0_linux_amd64 && \
+    mv local-php-security-checker_1.2.0_linux_amd64 /usr/local/bin/security-checker && \
     chmod +x /usr/local/bin/security-checker
 
 RUN phpunit --version && \
