@@ -1,4 +1,4 @@
-FROM php:8.0-fpm-alpine
+FROM php:8.1-fpm-alpine
 
 LABEL maintainer="manash149@gmail.com"
 
@@ -73,18 +73,17 @@ ENV YARN_VERSION 1.22.5
 ADD https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v${YARN_VERSION}.tar.gz /opt/yarn.tar.gz
 
 RUN echo "Install NODE AND YARN" && \
-   apk add --no-cache nodejs npm && \
-   yarnDirectory=/opt && \
-   mkdir -p "$yarnDirectory" && \
-   tar -xzf /opt/yarn.tar.gz -C "$yarnDirectory" && \
-  #  ls -l "$yarnDirectory" && \
-   mv "$yarnDirectory/yarn-v${YARN_VERSION}" "$yarnDirectory/yarn" && \
-   ln -s "$yarnDirectory/yarn/bin/yarn" /usr/local/bin/ && \
-   rm /opt/yarn.tar.gz && \
-   node -v && \
-   yarn -v && \
-   npm -v && \
-   curl -V
-   
+    apk add --no-cache nodejs npm && \
+    yarnDirectory=/opt && \
+    mkdir -p "$yarnDirectory" && \
+    tar -xzf /opt/yarn.tar.gz -C "$yarnDirectory" && \
+    #  ls -l "$yarnDirectory" && \
+    mv "$yarnDirectory/yarn-v${YARN_VERSION}" "$yarnDirectory/yarn" && \
+    ln -s "$yarnDirectory/yarn/bin/yarn" /usr/local/bin/ && \
+    rm /opt/yarn.tar.gz && \
+    node -v && \
+    yarn -v && \
+    npm -v && \
+    curl -V
 
 CMD ["php", "-a"]
