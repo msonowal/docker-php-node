@@ -16,7 +16,7 @@ ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/do
 RUN chmod +x /usr/local/bin/install-php-extensions && sync
 
 RUN php -m \
-    && install-php-extensions bcmath pcntl zip opcache pdo_mysql sockets gmp gd exif xdebug redis \
+    && install-php-extensions bcmath pcntl zip opcache pdo_mysql sockets gmp gd exif xdebug redis mongodb intl \
     && apk add --no-cache \
     git \
     openssh-client \
@@ -73,18 +73,17 @@ ENV YARN_VERSION 1.22.5
 ADD https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v${YARN_VERSION}.tar.gz /opt/yarn.tar.gz
 
 RUN echo "Install NODE AND YARN" && \
-   apk add --no-cache nodejs npm && \
-   yarnDirectory=/opt && \
-   mkdir -p "$yarnDirectory" && \
-   tar -xzf /opt/yarn.tar.gz -C "$yarnDirectory" && \
-  #  ls -l "$yarnDirectory" && \
-   mv "$yarnDirectory/yarn-v${YARN_VERSION}" "$yarnDirectory/yarn" && \
-   ln -s "$yarnDirectory/yarn/bin/yarn" /usr/local/bin/ && \
-   rm /opt/yarn.tar.gz && \
-   node -v && \
-   yarn -v && \
-   npm -v && \
-   curl -V
-   
+    apk add --no-cache nodejs npm && \
+    yarnDirectory=/opt && \
+    mkdir -p "$yarnDirectory" && \
+    tar -xzf /opt/yarn.tar.gz -C "$yarnDirectory" && \
+    #  ls -l "$yarnDirectory" && \
+    mv "$yarnDirectory/yarn-v${YARN_VERSION}" "$yarnDirectory/yarn" && \
+    ln -s "$yarnDirectory/yarn/bin/yarn" /usr/local/bin/ && \
+    rm /opt/yarn.tar.gz && \
+    node -v && \
+    yarn -v && \
+    npm -v && \
+    curl -V
 
-CMD ["php", "-a"]
+CMD ["php", "-a"]"]
