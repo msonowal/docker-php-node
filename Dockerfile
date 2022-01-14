@@ -16,7 +16,7 @@ ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/do
 RUN chmod +x /usr/local/bin/install-php-extensions && sync
 
 RUN php -m \
-    && install-php-extensions bcmath pcntl zip opcache pdo_mysql sockets gmp gd exif xdebug redis mongodb \
+    && install-php-extensions bcmath pcntl zip opcache pdo_mysql sockets gmp gd exif xdebug redis mongodb intl \
     && apk add --no-cache \
     git \
     openssh-client \
