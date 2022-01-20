@@ -8,7 +8,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
     org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP 8 and NodeJS LTS and Yarn with additional PHP extensions on official PHP Alpine flavour to use with Gitlab and other CI enviornments Fully tested" \
     org.label-schema.url="https://github.com/msonowal/docker-php-node"
 
-WORKDIR /work
+#WORKDIR /var/www/html
 # RUN echo $PHP_INI_DIR
 # Use the default development configuration
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
