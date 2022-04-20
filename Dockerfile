@@ -17,7 +17,8 @@ ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/do
 RUN chmod +x /usr/local/bin/install-php-extensions && sync
 
 RUN php -m \
-    && install-php-extensions bcmath pcntl zip opcache pdo_mysql sockets gmp gd exif xdebug redis mongodb intl \
+    && install-php-extensions \
+    bcmath pcntl zip opcache pdo_mysql sockets gmp gd exif redis mongodb intl pcov\
     && apk add --no-cache \
     git \
     openssh-client \
@@ -70,7 +71,7 @@ RUN phpunit --version && \
     phpcpd --version
 #RUN apk add --no-cache nodejs nodejs-npm yarn
 
-ENV YARN_VERSION 1.22.17
+ENV YARN_VERSION 1.22.18
 ADD https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v${YARN_VERSION}.tar.gz /opt/yarn.tar.gz
 
 RUN echo "Install NODE AND YARN" && \

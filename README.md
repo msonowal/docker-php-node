@@ -26,9 +26,10 @@
 `php71` (PHP 7.1)
 
 
-With composer installed 2.0 upto PHP 8 onwards as of now
+With composer installed 2.0 upto PHP 8.1 onwards as of now
 
-with XDEBUG enabled
+pcov installed for code coverage
+<!-- with XDEBUG enabled -->
 
 and npm and Yarn pre-installed with latest STABLE
 
