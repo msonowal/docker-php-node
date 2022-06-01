@@ -1,4 +1,4 @@
-FROM php:7.4-fpm-alpine3.13
+FROM php:7.4-fpm-alpine
 
 LABEL maintainer="manash149@gmail.com"
 
@@ -17,8 +17,10 @@ ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/do
 RUN chmod +x /usr/local/bin/install-php-extensions && sync
 
 RUN php -m \
-  && install-php-extensions bcmath pcntl zip opcache pdo_mysql sockets gmp gd exif xdebug redis \
-  && apk add openssh-client \
+  && install-php-extensions bcmath pcntl zip opcache pdo_mysql sockets gmp gd exif xdebug redis intl pcov \
+  && apk add --no-cache \
+  openssh-client \
+  git \
   && php -m
 
 # inspired from here
@@ -51,6 +53,7 @@ RUN composer global require \
     phpmd/phpmd squizlabs/php_codesniffer \
     symfony/phpunit-bridge \
     laravel/envoy \
+    laravel/vapor-cli \
     phpstan/phpstan \
     nunomaduro/phpinsights && \
     # ln -sn /root/.composer/vendor/bin/parallel-lint /usr/local/bin/parallel-lint && \
@@ -63,6 +66,7 @@ RUN composer global require \
     ln -sn /root/.composer/vendor/bin/phpunit-bridge /usr/local/bin/phpunit-bridge && \
     ln -sn /root/.composer/vendor/bin/envoy /usr/local/bin/envoy && \
     ln -sn /root/.composer/vendor/bin/phpstan /usr/local/bin/phpstan && \
+    ln -sn /root/.composer/vendor/bin/vapor /usr/local/bin/vapor && \
     wget https://phar.phpunit.de/phpcpd.phar && \
     mv phpcpd.phar /usr/local/bin/phpcpd && \
     chmod +x /usr/local/bin/phpcpd && \
@@ -78,7 +82,7 @@ RUN phpunit --version && \
     #var-dump-check && \
 #RUN apk add --no-cache nodejs nodejs-npm yarn
 
-ENV YARN_VERSION 1.22.5
+ENV YARN_VERSION 1.22.19
 ADD https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v${YARN_VERSION}.tar.gz /opt/yarn.tar.gz
 
 RUN echo "Install NODE AND YARN" && \
