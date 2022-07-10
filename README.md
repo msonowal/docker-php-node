@@ -18,7 +18,9 @@
 `php71` (PHP 7.1)
 
 
-With composer installed 2.0 upto PHP 8.1 onwards as of now
+# With composer installed 2.0 upto PHP 8.1 onwards as of now
+
+local-php-security-checker v2.0.4
 
 pcov installed for code coverage
 <!-- with XDEBUG enabled -->
