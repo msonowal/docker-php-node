@@ -5,6 +5,8 @@
 [View All Tags DockerHUB](https://hub.docker.com/repository/docker/msonowal/docker-php-node/tags?page=1&ordering=last_updated)
 # TAGS
 
+`php82/main/latest/edge` (PHP 8.2)
+
 `php81` (PHP 8.1)
 
 `php8` (PHP 8.0)
