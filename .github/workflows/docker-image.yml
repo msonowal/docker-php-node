@@ -16,7 +16,7 @@ on:
       - 'php*.*.*'
   pull_request:
     branches:
-      - 'master'
+      - 'main'
 
 env:
   # github.repository as <account>/<repo>
@@ -54,7 +54,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=sha
-            type=edge,branch=master
+            type=edge,branch=main
             type=raw,value=latest
             type=raw,value=php81
 

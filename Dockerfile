@@ -63,8 +63,8 @@ RUN composer global require \
     wget https://phar.phpunit.de/phpcpd.phar && \
     mv phpcpd.phar /usr/local/bin/phpcpd && \
     chmod +x /usr/local/bin/phpcpd && \
-    wget https://github.com/fabpot/local-php-security-checker/releases/download/v2.0.4/local-php-security-checker_2.0.4_linux_amd64 && \
-    mv local-php-security-checker_2.0.4_linux_amd64 /usr/local/bin/security-checker && \
+    wget https://github.com/fabpot/local-php-security-checker/releases/download/v2.0.6/local-php-security-checker_2.0.6_linux_amd64 && \
+    mv local-php-security-checker_2.0.6_linux_amd64 /usr/local/bin/security-checker && \
     chmod +x /usr/local/bin/security-checker
 
 RUN phpunit --version && \

@@ -5,7 +5,7 @@
 [View All Tags DockerHUB](https://hub.docker.com/repository/docker/msonowal/docker-php-node/tags?page=1&ordering=last_updated)
 # TAGS
 
-`php81/master/latest/edge/php81` (PHP 8.1)
+`php81` (PHP 8.1)
 
 `php8` (PHP 8.0)
 
@@ -20,7 +20,7 @@
 
 # With composer installed 2.0 upto PHP 8.1 onwards as of now
 
-local-php-security-checker v2.0.4
+local-php-security-checker v2.0.6
 
 pcov installed for code coverage
 <!-- with XDEBUG enabled -->
