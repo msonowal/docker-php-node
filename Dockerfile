@@ -3,25 +3,27 @@ FROM php:7.4-fpm-alpine
 LABEL maintainer="manash149@gmail.com"
 
 LABEL org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.vcs-url="https://github.com/msonowal/docker-php-node.git" \
-      org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP 7.4 and NodeJS and Yarn with additional PHP extensions on official PHP Alpine flavour to use with Gitlab and other CI enviornments" \
-      org.label-schema.url="https://github.com/msonowal/docker-php-node"
+    org.label-schema.vcs-url="https://github.com/msonowal/docker-php-node.git" \
+    org.label-schema.vcs-ref=$VCS_REF \
+    org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP 7.4 and NodeJS LTS and Yarn with additional PHP extensions on official PHP Alpine flavour to use with Gitlab and other CI enviornments Fully tested" \
+    org.label-schema.url="https://github.com/msonowal/docker-php-node"
 
 #RUN echo $PHP_INI_DIR
 # Use the default development configuration
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
-
-RUN chmod +x /usr/local/bin/install-php-extensions && sync
+RUN chmod +x /usr/local/bin/install-php-extensions
 
 RUN php -m \
-  && install-php-extensions bcmath pcntl zip opcache pdo_mysql sockets gmp gd exif xdebug redis intl pcov \
-  && apk add --no-cache \
-  openssh-client \
-  git \
-  && php -m
+    && install-php-extensions \
+    bcmath pcntl zip opcache pdo_mysql sockets gmp gd exif redis mongodb intl pcov \
+    && apk add --no-cache \
+    git \
+    openssh-client \
+    zip unzip \
+    ca-certificates \
+    && php -m
 
 # inspired from here
 # https://stackoverflow.com/a/48444443/1125961
@@ -44,21 +46,13 @@ RUN echo "---> Installing Composer" && \
     rm -rf /tmp/* && \
     composer -V
 
-# RUN composer global require hirak/prestissimo && \
 RUN composer global require \
-    #php-parallel-lint/php-parallel-lint \
-    #php-parallel-lint/php-console-highlighter \
-    #jakub-onderka/php-var-dump-check \
     phpunit/phpunit phpunit/phpcov \
     phpmd/phpmd squizlabs/php_codesniffer \
     symfony/phpunit-bridge \
     laravel/envoy \
     laravel/vapor-cli \
-    phpstan/phpstan \
-    nunomaduro/phpinsights && \
-    # ln -sn /root/.composer/vendor/bin/parallel-lint /usr/local/bin/parallel-lint && \
-    #ln -sn /root/.composer/vendor/bin/php-parallel-lint /usr/local/bin/php-parallel-lint && \
-    #ln -sn /root/.composer/vendor/bin/var-dump-check /usr/local/bin/var-dump-check && \
+    phpstan/phpstan && \
     ln -sn /root/.composer/vendor/bin/phpunit /usr/local/bin/phpunit && \
     ln -sn /root/.composer/vendor/bin/phpcov /usr/local/bin/phpcov && \
     ln -sn /root/.composer/vendor/bin/phpmd /usr/local/bin/phpmd && \
@@ -77,26 +71,25 @@ RUN composer global require \
 RUN phpunit --version && \
     phpcov --version && \
     phpcs --version && \
-    phpcpd --version
-    #php-parallel-lint -V && \
-    #var-dump-check && \
+    phpcpd --version && \
+    envoy -v
 #RUN apk add --no-cache nodejs nodejs-npm yarn
 
 ENV YARN_VERSION 1.22.19
 ADD https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v${YARN_VERSION}.tar.gz /opt/yarn.tar.gz
 
 RUN echo "Install NODE AND YARN" && \
-   apk add --no-cache nodejs npm && \
-   yarnDirectory=/opt && \
-   mkdir -p "$yarnDirectory" && \
-   tar -xzf /opt/yarn.tar.gz -C "$yarnDirectory" && \
-  #  ls -l "$yarnDirectory" && \
-   mv "$yarnDirectory/yarn-v${YARN_VERSION}" "$yarnDirectory/yarn" && \
-   ln -s "$yarnDirectory/yarn/bin/yarn" /usr/local/bin/ && \
-   rm /opt/yarn.tar.gz && \
-   node -v && \
-   yarn -v && \
-   npm -v && \
-   curl -V
+    apk add --no-cache nodejs npm && \
+    yarnDirectory=/opt && \
+    mkdir -p "$yarnDirectory" && \
+    tar -xzf /opt/yarn.tar.gz -C "$yarnDirectory" && \
+    #  ls -l "$yarnDirectory" && \
+    mv "$yarnDirectory/yarn-v${YARN_VERSION}" "$yarnDirectory/yarn" && \
+    ln -s "$yarnDirectory/yarn/bin/yarn" /usr/local/bin/ && \
+    rm /opt/yarn.tar.gz && \
+    node -v && \
+    yarn -v && \
+    npm -v && \
+    curl -V
 
 CMD ["php", "-a"]
