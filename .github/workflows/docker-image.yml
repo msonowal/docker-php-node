@@ -55,7 +55,6 @@ jobs:
             type=semver,pattern={{major}}
             type=sha
             type=edge,branch=main
-            type=raw,value=latest
             type=raw,value=php81
 
       - name: Set up Docker Buildx
