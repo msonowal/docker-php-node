@@ -5,7 +5,7 @@ LABEL maintainer="manash149@gmail.com"
 LABEL org.label-schema.build-date=$BUILD_DATE \
     org.label-schema.vcs-url="https://github.com/msonowal/docker-php-node.git" \
     org.label-schema.vcs-ref=$VCS_REF \
-    org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP 8 and NodeJS LTS and Yarn with additional PHP extensions on official PHP Alpine flavour to use with Gitlab and other CI enviornments Fully tested" \
+    org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP 8.2 and NodeJS LTS and Yarn with additional PHP extensions on official PHP Alpine flavour to use with Gitlab and other CI enviornments Fully tested" \
     org.label-schema.url="https://github.com/msonowal/docker-php-node"
 
 #WORKDIR /var/www/html
@@ -14,7 +14,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
-RUN chmod +x /usr/local/bin/install-php-extensions && sync
+RUN chmod +x /usr/local/bin/install-php-extensions
 
 RUN php -m \
     && install-php-extensions \
@@ -22,6 +22,8 @@ RUN php -m \
     && apk add --no-cache \
     git \
     openssh-client \
+    zip unzip \
+    ca-certificates \
     && php -m
 
 # inspired from here
@@ -70,7 +72,8 @@ RUN composer global require \
 RUN phpunit --version && \
     phpcov --version && \
     phpcs --version && \
-    phpcpd --version
+    phpcpd --version && \
+    envoy -v
 #RUN apk add --no-cache nodejs nodejs-npm yarn
 
 ENV YARN_VERSION 1.22.19
