@@ -5,7 +5,7 @@ LABEL maintainer="manash149@gmail.com"
 LABEL org.label-schema.build-date=$BUILD_DATE \
     org.label-schema.vcs-url="https://github.com/msonowal/docker-php-node.git" \
     org.label-schema.vcs-ref=$VCS_REF \
-    org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP 8 and NodeJS LTS and Yarn with additional PHP extensions on official PHP Alpine flavour to use with Gitlab and other CI enviornments Fully tested" \
+    org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP 8.0 and NodeJS LTS and Yarn with additional PHP extensions on official PHP Alpine flavour to use with Gitlab and other CI enviornments Fully tested" \
     org.label-schema.url="https://github.com/msonowal/docker-php-node"
 
 # RUN echo $PHP_INI_DIR
@@ -13,13 +13,16 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
-RUN chmod +x /usr/local/bin/install-php-extensions && sync
+RUN chmod +x /usr/local/bin/install-php-extensions
 
 RUN php -m \
-    && install-php-extensions bcmath pcntl zip opcache pdo_mysql sockets gmp gd exif xdebug redis mongodb intl \
+    && install-php-extensions \
+    bcmath pcntl zip opcache pdo_mysql sockets gmp gd exif redis mongodb intl pcov \
     && apk add --no-cache \
     git \
     openssh-client \
+    zip unzip \
+    ca-certificates \
     && php -m
 
 # inspired from here
@@ -61,14 +64,15 @@ RUN composer global require \
     wget https://phar.phpunit.de/phpcpd.phar && \
     mv phpcpd.phar /usr/local/bin/phpcpd && \
     chmod +x /usr/local/bin/phpcpd && \
-    wget https://github.com/fabpot/local-php-security-checker/releases/download/v1.2.0/local-php-security-checker_1.2.0_linux_amd64 && \
-    mv local-php-security-checker_1.2.0_linux_amd64 /usr/local/bin/security-checker && \
+    wget https://github.com/fabpot/local-php-security-checker/releases/download/v2.0.6/local-php-security-checker_2.0.6_linux_amd64 && \
+    mv local-php-security-checker_2.0.6_linux_amd64 /usr/local/bin/security-checker && \
     chmod +x /usr/local/bin/security-checker
 
 RUN phpunit --version && \
     phpcov --version && \
     phpcs --version && \
-    phpcpd --version
+    phpcpd --version && \
+    envoy -v
 #RUN apk add --no-cache nodejs nodejs-npm yarn
 
 ENV YARN_VERSION 1.22.19
@@ -88,4 +92,4 @@ RUN echo "Install NODE AND YARN" && \
     npm -v && \
     curl -V
 
-CMD ["php", "-a"]"]
+CMD ["php", "-a"]
