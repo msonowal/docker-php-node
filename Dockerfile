@@ -53,6 +53,7 @@ RUN composer global require \
     symfony/phpunit-bridge \
     laravel/envoy \
     laravel/vapor-cli \
+    laravel/pint \
     phpstan/phpstan && \
     ln -sn /root/.composer/vendor/bin/phpunit /usr/local/bin/phpunit && \
     ln -sn /root/.composer/vendor/bin/phpcov /usr/local/bin/phpcov && \
@@ -62,6 +63,7 @@ RUN composer global require \
     ln -sn /root/.composer/vendor/bin/envoy /usr/local/bin/envoy && \
     ln -sn /root/.composer/vendor/bin/phpstan /usr/local/bin/phpstan && \
     ln -sn /root/.composer/vendor/bin/vapor /usr/local/bin/vapor && \
+    ln -sn /root/.composer/vendor/bin/pint /usr/local/bin/pint && \
     wget https://phar.phpunit.de/phpcpd.phar && \
     mv phpcpd.phar /usr/local/bin/phpcpd && \
     chmod +x /usr/local/bin/phpcpd && \
