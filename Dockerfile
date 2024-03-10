@@ -96,4 +96,8 @@ RUN echo "Install NODE AND YARN" && \
     npm -v && \
     curl -V
 
+RUN echo "add aws cli" && \
+    apk add --no-cache aws-cli && \
+    aws --version
+
 CMD ["php", "-a"]
