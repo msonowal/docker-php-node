@@ -1,11 +1,11 @@
-FROM php:8.4-fpm-alpine
+FROM php:8.5-fpm-alpine
 
 LABEL maintainer="manash149@gmail.com"
 
 LABEL org.label-schema.build-date=$BUILD_DATE \
     org.label-schema.vcs-url="https://github.com/msonowal/docker-php-node.git" \
     org.label-schema.vcs-ref=$VCS_REF \
-    org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP 8.3 and NodeJS LTS and Yarn with additional PHP extensions on official PHP Alpine flavour to use with Gitlab and other CI enviornments Fully tested" \
+    org.label-schema.description="Docker For PHP/Laravel Developers - Docker image with PHP 8.5 and NodeJS LTS and Yarn with additional PHP extensions on official PHP Alpine flavour to use with Gitlab and other CI enviornments Fully tested" \
     org.label-schema.url="https://github.com/msonowal/docker-php-node"
 
 #WORKDIR /var/www/html
