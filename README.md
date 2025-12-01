@@ -7,9 +7,11 @@
 [View All Tags DockerHUB](https://hub.docker.com/repository/docker/msonowal/docker-php-node/tags?page=1&ordering=last_updated)
 # TAGS
 
-`php83/main/latest/edge` (PHP 8.3)
+`php83/main/latest/edge` (PHP 8.5)
 
 `php84` (PHP 8.4)
+
+`php84` (PHP 8.3)
 
 `php82` (PHP 8.2)
 
@@ -26,7 +28,7 @@
 `php71` (PHP 7.1)
 
 
-# With composer installed 2.0 upto PHP 8.3 onwards as of now
+# With composer installed 2.0 upto PHP 8.5 onwards as of now
 
 Node v18
 
