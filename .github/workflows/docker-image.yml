@@ -59,7 +59,7 @@ jobs:
             type=sha
             type=edge,branch=main
             type=raw,value=latest
-            type=raw,value=php83
+            type=raw,value=php84
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
