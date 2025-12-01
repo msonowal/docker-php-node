@@ -30,7 +30,7 @@
 
 # With composer installed 2.0 upto PHP 8.5 onwards as of now
 
-Node v18
+Node v22
 
 local-php-security-checker v2.0.6
 
