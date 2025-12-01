@@ -9,6 +9,8 @@
 
 `php83/main/latest/edge` (PHP 8.3)
 
+`php84` (PHP 8.4)
+
 `php82` (PHP 8.2)
 
 `php81` (PHP 8.1)
