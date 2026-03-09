@@ -18,7 +18,7 @@ RUN chmod +x /usr/local/bin/install-php-extensions
 
 RUN php -m \
     && install-php-extensions \
-    bcmath pcntl zip opcache pdo_mysql sockets gmp gd exif redis mongodb intl pcov \
+    bcmath pcntl zip opcache pdo_mysql sockets gmp gd exif redis mongodb-1.17.3 intl pcov opentelemetry \
     && apk add --no-cache \
     git \
     openssh-client \
