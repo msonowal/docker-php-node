@@ -28,9 +28,10 @@ env:
   DOCKERHUB_IMAGE: msonowal/docker-php-node
   GHCR_IMAGE: ghcr.io/${{ github.repository }}
   IMAGE_DESCRIPTION: PHP 8.5, Node.js 24 LTS and Composer 2 on Alpine, with PHP QA tools, for CI and local dev
+  CLOUD_IMAGE_DESCRIPTION: docker-php-node plus Docker, kubectl, Helm, OpenTofu, Terraform, gcloud and Firebase CLIs
   # renovate: datasource=docker depName=aquasec/trivy
   TRIVY_IMAGE: aquasec/trivy:0.76.1@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c
-  # Docker tags to generate, shared by the build and merge jobs
+  # Docker tags to generate, shared by the build and merge jobs; the cloud variant adds a -cloud suffix
   # https://github.com/docker/metadata-action
   TAG_RULES: |
     type=schedule
@@ -73,19 +74,15 @@ jobs:
       - name: Lint scripts
         run: shellcheck bin/*
 
-  # Build each platform natively on its own runner (no QEMU) and push it by digest
+  # Build each variant and platform natively on its own runner (no QEMU) and push it by digest
   build:
+    name: build (${{ matrix.variant }}, ${{ matrix.arch }})
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: linux/amd64
-            arch: amd64
-            runner: ubuntu-latest
-          - platform: linux/arm64
-            arch: arm64
-            runner: ubuntu-24.04-arm
-    runs-on: ${{ matrix.runner }}
+        variant: [base, cloud]
+        arch: [amd64, arm64]
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
     permissions:
       contents: read
       # pushes the per-platform images
@@ -106,8 +103,10 @@ jobs:
             ${{ env.DOCKERHUB_IMAGE }}
             ${{ env.GHCR_IMAGE }}
           tags: ${{ env.TAG_RULES }}
+          flavor: |
+            suffix=${{ matrix.variant == 'cloud' && '-cloud' || '' }},onlatest=true
           labels: |
-            org.opencontainers.image.description=${{ env.IMAGE_DESCRIPTION }}
+            org.opencontainers.image.description=${{ matrix.variant == 'cloud' && env.CLOUD_IMAGE_DESCRIPTION || env.IMAGE_DESCRIPTION }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
@@ -132,7 +131,8 @@ jobs:
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
-          platforms: ${{ matrix.platform }}
+          target: ${{ matrix.variant }}
+          platforms: linux/${{ matrix.arch }}
           labels: ${{ steps.meta.outputs.labels }}
           sbom: true
           provenance: mode=max
@@ -150,29 +150,32 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: digests-${{ matrix.arch }}
+          name: digests-${{ matrix.variant }}-${{ matrix.arch }}
           path: ${{ runner.temp }}/digests/*
           if-no-files-found: error
           retention-days: 1
 
-  # Combine the per-platform digests into multi-arch tags on both registries
+  # Combine each variant's per-platform digests into multi-arch tags on both registries
   merge:
+    name: merge (${{ matrix.variant }})
     if: github.event_name != 'pull_request'
     needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [base, cloud]
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      # pushes the multi-arch tags
       packages: write
-    outputs:
-      dockerhub-digest: ${{ steps.digests.outputs.dockerhub }}
-      ghcr-digest: ${{ steps.digests.outputs.ghcr }}
 
     steps:
       - name: Download digests
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           path: ${{ runner.temp }}/digests
-          pattern: digests-*
+          pattern: digests-${{ matrix.variant }}-*
           merge-multiple: true
 
       - name: Extract Docker metadata
@@ -185,8 +188,10 @@ jobs:
             ${{ env.DOCKERHUB_IMAGE }}
             ${{ env.GHCR_IMAGE }}
           tags: ${{ env.TAG_RULES }}
+          flavor: |
+            suffix=${{ matrix.variant == 'cloud' && '-cloud' || '' }},onlatest=true
           annotations: |
-            org.opencontainers.image.description=${{ env.IMAGE_DESCRIPTION }}
+            org.opencontainers.image.description=${{ matrix.variant == 'cloud' && env.CLOUD_IMAGE_DESCRIPTION || env.IMAGE_DESCRIPTION }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
@@ -206,10 +211,15 @@ jobs:
       # each registry's tags point at the digests pushed to that same registry
       - name: Create manifest lists and push
         working-directory: ${{ runner.temp }}/digests
+        shell: bash
         run: |
           for image in "$DOCKERHUB_IMAGE" "$GHCR_IMAGE"; do
-            args=()
+            tags=()
             for tag in $(jq -r --arg image "$image" '.tags[] | select(startswith($image + ":"))' <<< "$DOCKER_METADATA_OUTPUT_JSON"); do
+              tags+=("$tag")
+            done
+            args=()
+            for tag in "${tags[@]}"; do
               args+=(-t "$tag")
             done
             while IFS= read -r annotation; do
@@ -219,21 +229,17 @@ jobs:
               args+=("$image@sha256:$digest")
             done
             docker buildx imagetools create "${args[@]}"
+            docker buildx imagetools inspect "${tags[0]}"
           done
 
-      - name: Inspect image
-        id: digests
-        env:
-          VERSION: ${{ steps.meta.outputs.version }}
-        run: |
-          docker buildx imagetools inspect "$DOCKERHUB_IMAGE:$VERSION"
-          docker buildx imagetools inspect "$GHCR_IMAGE:$VERSION"
-          echo "dockerhub=$(docker buildx imagetools inspect "$DOCKERHUB_IMAGE:$VERSION" --format '{{json .Manifest}}' | jq -r .digest)" >> "$GITHUB_OUTPUT"
-          echo "ghcr=$(docker buildx imagetools inspect "$GHCR_IMAGE:$VERSION" --format '{{json .Manifest}}' | jq -r .digest)" >> "$GITHUB_OUTPUT"
-
-  # Sign each registry's multi-arch index with keyless cosign; verify with `cosign verify` (see README)
+  # Sign each multi-arch index with keyless cosign; verify with `cosign verify` (see README)
   sign:
+    name: sign (${{ matrix.variant }})
     needs: merge
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [base, cloud]
     runs-on: ubuntu-latest
     permissions:
       # pushes the signatures next to the images
@@ -259,20 +265,26 @@ jobs:
         with:
           cosign-release: v3.1.4
 
+      # the sha-<commit> tag always points at this run's index
       - name: Sign images
+        shell: bash
         env:
-          DOCKERHUB_DIGEST: ${{ needs.merge.outputs.dockerhub-digest }}
-          GHCR_DIGEST: ${{ needs.merge.outputs.ghcr-digest }}
+          SUFFIX: ${{ matrix.variant == 'cloud' && '-cloud' || '' }}
         run: |
-          cosign sign --yes "$GHCR_IMAGE@$GHCR_DIGEST"
-          cosign sign --yes "$DOCKERHUB_IMAGE@$DOCKERHUB_DIGEST"
+          tag="sha-${GITHUB_SHA::7}${SUFFIX}"
+          for image in "$GHCR_IMAGE" "$DOCKERHUB_IMAGE"; do
+            digest=$(docker buildx imagetools inspect "$image:$tag" --format '{{json .Manifest}}' | jq -re .digest)
+            cosign sign --yes "$image@$digest"
+          done
 
   # Report known vulnerabilities to code scanning, without failing the build
   scan:
+    name: scan (${{ matrix.variant }}, ${{ matrix.arch }})
     needs: merge
     strategy:
       fail-fast: false
       matrix:
+        variant: [base, cloud]
         arch: [amd64, arm64]
     runs-on: ubuntu-latest
     permissions:
@@ -287,19 +299,23 @@ jobs:
           persist-credentials: false
 
       - name: Scan image with Trivy
+        shell: bash
         env:
-          IMAGE: ${{ env.GHCR_IMAGE }}@${{ needs.merge.outputs.ghcr-digest }}
+          SUFFIX: ${{ matrix.variant == 'cloud' && '-cloud' || '' }}
           PLATFORM: linux/${{ matrix.arch }}
         run: |
+          image="$GHCR_IMAGE:sha-${GITHUB_SHA::7}${SUFFIX}"
+          digest=$(docker buildx imagetools inspect "$image" --format '{{json .Manifest}}' | jq -re .digest)
           docker run --rm -v "$PWD:/work" -w /work "$TRIVY_IMAGE" image \
-            --scanners vuln --ignore-unfixed --severity HIGH,CRITICAL \
-            --platform "$PLATFORM" --format sarif --output trivy.sarif "$IMAGE"
+            --scanners vuln --ignore-unfixed --severity HIGH,CRITICAL --timeout 15m \
+            --platform "$PLATFORM" --format sarif --output trivy.sarif "$GHCR_IMAGE@$digest"
 
+      # the base variant keeps the original category names, so existing analyses stay linked
       - name: Upload results to code scanning
         uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         with:
           sarif_file: trivy.sarif
-          category: trivy-${{ matrix.arch }}
+          category: ${{ matrix.variant == 'cloud' && format('trivy-cloud-{0}', matrix.arch) || format('trivy-{0}', matrix.arch) }}
 
   # Keep the Docker Hub page in sync with README.md
   dockerhub-readme:
