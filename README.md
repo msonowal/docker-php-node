@@ -1,5 +1,5 @@
 <p align="center">
-  <img src=".github/assets/banner.svg" alt="docker-php-node: PHP 8.5, Node.js 24 LTS and Composer 2 on Alpine" width="100%">
+  <img src="https://raw.githubusercontent.com/msonowal/docker-php-node/main/.github/assets/banner.svg" alt="docker-php-node: PHP 8.5, Node.js 24 LTS and Composer 2 on Alpine" width="100%">
 </p>
 
 <p align="center">
@@ -10,7 +10,7 @@
   <img src="https://img.shields.io/badge/Node.js-24%20LTS-5FA04E?logo=nodedotjs&logoColor=white" alt="Node.js 24 LTS">
   <img src="https://img.shields.io/badge/platform-amd64%20%7C%20arm64-1D63ED" alt="Platforms: amd64, arm64">
   <a href="https://github.com/msonowal/docker-php-node/pkgs/container/docker-php-node"><img src="https://img.shields.io/badge/ghcr.io-available-24292f?logo=github" alt="Available on GHCR"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
+  <a href="https://github.com/msonowal/docker-php-node/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
 </p>
 
 A ready-to-go image for **building and testing PHP / Laravel apps** in CI (GitLab CI, GitHub Actions, Bitbucket, …) and locally. PHP, Composer, Node.js, npm, Yarn and the usual QA tools are already installed, so jobs can start on `composer install` instead of on setup.
