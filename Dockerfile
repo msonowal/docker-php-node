@@ -47,6 +47,9 @@ RUN echo "---> Installing Composer" && \
     rm -rf /tmp/* && \
     composer -V
 
+# set by buildx per platform (amd64 / arm64)
+ARG TARGETARCH
+
 RUN composer global require \
     phpunit/phpunit phpunit/phpcov \
     phpmd/phpmd squizlabs/php_codesniffer \
@@ -67,8 +70,8 @@ RUN composer global require \
     wget https://phar.phpunit.de/phpcpd.phar && \
     mv phpcpd.phar /usr/local/bin/phpcpd && \
     chmod +x /usr/local/bin/phpcpd && \
-    wget https://github.com/fabpot/local-php-security-checker/releases/download/v2.0.6/local-php-security-checker_2.0.6_linux_amd64 && \
-    mv local-php-security-checker_2.0.6_linux_amd64 /usr/local/bin/security-checker && \
+    wget https://github.com/fabpot/local-php-security-checker/releases/download/v2.1.3/local-php-security-checker_linux_${TARGETARCH} && \
+    mv local-php-security-checker_linux_${TARGETARCH} /usr/local/bin/security-checker && \
     chmod +x /usr/local/bin/security-checker
 
 RUN phpunit --version && \
@@ -78,7 +81,7 @@ RUN phpunit --version && \
     envoy -v
 #RUN apk add --no-cache nodejs nodejs-npm yarn
 
-ENV YARN_VERSION 1.22.19
+ENV YARN_VERSION=1.22.22
 ADD https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v${YARN_VERSION}.tar.gz /opt/yarn.tar.gz
 
 RUN echo "Install NODE AND YARN" && \
