@@ -1,4 +1,4 @@
-FROM php:8.5-fpm-alpine
+FROM php:8.5-fpm-alpine AS base
 
 # the other OCI labels (source, version, revision, ...) are set by docker/metadata-action in CI
 LABEL org.opencontainers.image.authors="manash149@gmail.com"
@@ -22,7 +22,9 @@ RUN php -m \
     zip unzip \
     ca-certificates \
     jq rsync make patch \
+    bash gettext-envsubst yq-go zstd tzdata \
     mariadb-client postgresql18-client \
+    && rm -rf /var/cache/apk/* \
     && php -m
 
 # inspired from here
@@ -57,6 +59,8 @@ RUN set -eu; \
     tool composer-require-checker maglnet/composer-require-checker composer-require-checker; \
     tool envoy laravel/envoy envoy; \
     tool vapor laravel/vapor-cli vapor; \
+    tool laravel laravel/installer laravel; \
+    tool cloud laravel/cloud-cli cloud; \
     composer global config --no-plugins allow-plugins.ergebnis/composer-normalize true; \
     composer global require --no-interaction --no-progress ergebnis/composer-normalize; \
     globalBin=$(composer global config bin-dir --absolute 2>/dev/null); \
@@ -81,6 +85,8 @@ RUN phpunit --version && \
     security-checker --help > /dev/null && \
     envoy -v && \
     vapor --version && \
+    laravel --version && \
+    cloud --version && \
     php -r 'exit(extension_loaded("pcov") && !extension_loaded("xdebug") ? 0 : 1);' && \
     php -dzend_extension=xdebug -r 'exit(extension_loaded("xdebug") ? 0 : 1);'
 
@@ -107,7 +113,8 @@ RUN echo "Install Node.js and Corepack" && \
     node -v && \
     npm -v && \
     yarn -v && \
-    curl -V
+    curl -V && \
+    rm -rf /tmp/*
 
 # Yarn 1 outside a project, the pinned Yarn 4 inside one, and pnpm for a non-root user, all offline
 # hadolint ignore=DL3003
@@ -119,10 +126,95 @@ RUN cd /tmp && \
     adduser -D corepack-test && \
     su corepack-test -s /bin/sh -c 'cd /tmp && COREPACK_ENABLE_NETWORK=0 pnpm --version' && \
     deluser --remove-home corepack-test && \
-    cd / && rm -rf /tmp/berry
+    cd / && rm -rf /tmp/*
 
 RUN echo "add aws cli" && \
     apk add --no-cache aws-cli && \
     aws --version
 
+# GitHub and GitLab CLIs, for releases and API calls from CI jobs
+COPY --from=registry.gitlab.com/gitlab-org/cli:v1.124.0 /usr/bin/glab /usr/local/bin/glab
+
+ARG TARGETARCH
+# renovate: datasource=github-releases depName=cli/cli
+ARG GH_VERSION=2.103.2
+# hadolint ignore=DL3003
+RUN cd /tmp && \
+    curl -fsSLO "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_${TARGETARCH}.tar.gz" && \
+    curl -fsSLO "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_checksums.txt" && \
+    grep " gh_${GH_VERSION}_linux_${TARGETARCH}.tar.gz\$" "gh_${GH_VERSION}_checksums.txt" > gh.sha256 && \
+    sha256sum -c gh.sha256 && \
+    tar -xzf "gh_${GH_VERSION}_linux_${TARGETARCH}.tar.gz" && \
+    mv "gh_${GH_VERSION}_linux_${TARGETARCH}/bin/gh" /usr/local/bin/ && \
+    rm -rf /tmp/* && \
+    gh --version && \
+    glab --version && \
+    bash --version && \
+    envsubst --version && \
+    yq --version && \
+    zstd --version
+
 CMD ["php", "-a"]
+
+# The -cloud tags: the base image plus deploy and infrastructure CLIs
+FROM base AS cloud
+
+ARG TARGETARCH
+ENV CHECKPOINT_DISABLE=1 \
+    CLOUDSDK_PYTHON=python3 \
+    CLOUDSDK_CORE_DISABLE_PROMPTS=1 \
+    CLOUDSDK_COMPONENT_MANAGER_DISABLE_UPDATE_CHECK=1 \
+    CLOUDSDK_CORE_DISABLE_USAGE_REPORTING=true \
+    PATH=/opt/google-cloud-sdk/bin:$PATH
+
+# python3 is already there for aws-cli; gcloud needs it too, so ask for it explicitly
+RUN apk add --no-cache docker-cli docker-cli-buildx docker-cli-compose python3
+
+COPY --from=registry.k8s.io/kubectl:v1.37.1 /bin/kubectl /usr/local/bin/kubectl
+COPY --from=ghcr.io/opentofu/opentofu:1.13.2-minimal /usr/local/bin/tofu /usr/local/bin/tofu
+COPY --from=hashicorp/terraform:1.17.0 /bin/terraform /usr/local/bin/terraform
+
+# renovate: datasource=github-releases depName=helm/helm
+ARG HELM_VERSION=4.3.1
+# hadolint ignore=DL3003
+RUN cd /tmp && \
+    curl -fsSLO "https://get.helm.sh/helm-v${HELM_VERSION}-linux-${TARGETARCH}.tar.gz" && \
+    curl -fsSLO "https://get.helm.sh/helm-v${HELM_VERSION}-linux-${TARGETARCH}.tar.gz.sha256sum" && \
+    sha256sum -c "helm-v${HELM_VERSION}-linux-${TARGETARCH}.tar.gz.sha256sum" && \
+    tar -xzf "helm-v${HELM_VERSION}-linux-${TARGETARCH}.tar.gz" && \
+    mv "linux-${TARGETARCH}/helm" /usr/local/bin/ && \
+    rm -rf /tmp/*
+
+# gcloud runs on the image's Python instead of its bundled glibc one.
+# bq and gsutil are dropped (`gcloud storage` replaces gsutil); the GKE auth plugin is added for kubectl.
+# renovate: datasource=docker depName=gcr.io/google.com/cloudsdktool/google-cloud-cli
+ARG GCLOUD_VERSION=590.0.1
+RUN if [ "$TARGETARCH" = arm64 ]; then arch=arm; else arch=x86_64; fi && \
+    curl -fsSL -o /tmp/gcloud.tar.gz "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-${GCLOUD_VERSION}-linux-${arch}.tar.gz" && \
+    tar -xzf /tmp/gcloud.tar.gz -C /opt && \
+    rm -rf /opt/google-cloud-sdk/platform/bundledpythonunix && \
+    gcloud components remove bq gsutil --quiet && \
+    gcloud components install gke-gcloud-auth-plugin --quiet --no-compile-python && \
+    find /opt/google-cloud-sdk -name __pycache__ -type d -prune -exec rm -rf {} + && \
+    rm -rf /opt/google-cloud-sdk/.install/.backup /root/.config/gcloud /tmp/*
+
+# renovate: datasource=npm depName=firebase-tools
+ARG FIREBASE_VERSION=15.34.1
+RUN npm install -g --no-fund --no-audit "firebase-tools@${FIREBASE_VERSION}" && \
+    npm cache clean --force && \
+    rm -rf /root/.npm /tmp/*
+
+RUN docker --version && \
+    docker buildx version && \
+    docker compose version && \
+    kubectl version --client && \
+    helm version && \
+    tofu version && \
+    terraform version && \
+    gcloud version && \
+    gke-gcloud-auth-plugin --version && \
+    firebase --version && \
+    rm -rf /root/.config/gcloud /root/.config/configstore /tmp/*
+
+# a plain `docker build .` produces the base image
+FROM base
