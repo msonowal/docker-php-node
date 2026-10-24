@@ -41,6 +41,13 @@ Planned improvements to the image and its build, from research done in October 2
 - [x] Add a LICENSE (MIT).
 - [x] Sync the README to Docker Hub.
 
+## Tools and the `-cloud` variant
+
+- [x] Default image: `gh`, `glab`, Laravel installer, Laravel Cloud CLI, `bash`, `envsubst`, `yq`, `zstd`, `tzdata`.
+- [x] `php85-cloud` / `latest-cloud`: Docker CLI with buildx and compose, kubectl, Helm 4, OpenTofu, Terraform, gcloud with the GKE auth plugin, Firebase CLI.
+- Bref and osls stay in each project; Serverless Framework v4 needs an account key, and Bref Cloud's CLI is proprietary.
+- For Phase 1: `laravel/cloud-cli` needs PHP 8.3+, so a `php82` build has to skip it. Build `-cloud` for the newest PHP only.
+
 ## Later: optional variant tags
 
 - `-browsers`: Chromium and chromedriver for Laravel Dusk, about +650 MB. Pest 4 browser tests need Playwright, which supports only Debian and Ubuntu, so that would need a Debian-based variant.

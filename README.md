@@ -60,6 +60,7 @@ jobs:
 | Tag | PHP | Upstream PHP status |
 | --- | --- | --- |
 | `php85`, `latest`, `edge`, `main` | 8.5 | Active support |
+| `php85-cloud`, `latest-cloud` | 8.5 | Same, plus deploy and infrastructure CLIs (see [Cloud tags](#cloud-tags)) |
 | `php84` | 8.4 | Active support |
 | `php83` | 8.3 | Security fixes only |
 | `php82` | 8.2 | Security fixes only (until Dec 2026) |
@@ -98,8 +99,10 @@ These are for the `php85` tag. The older `phpXY` tags haven't been updated with 
 | `composer audit` | `security-checker` (see below) |
 | [Laravel Envoy](https://laravel.com/docs/envoy) | `envoy` |
 | [Laravel Vapor CLI](https://docs.vapor.build) | `vapor` |
+| [Laravel installer](https://laravel.com/docs/installation) | `laravel` |
+| [Laravel Cloud CLI](https://github.com/laravel/cloud-cli) | `cloud` |
 
-**Also:** AWS CLI v2, MariaDB / MySQL client, PostgreSQL 18 client, git, openssh-client, curl, jq, rsync, make, patch, zip / unzip
+**Also:** AWS CLI v2, [GitHub CLI](https://cli.github.com) (`gh`), [GitLab CLI](https://gitlab.com/gitlab-org/cli) (`glab`), MariaDB / MySQL client, PostgreSQL 18 client, git, openssh-client, curl, bash, jq, [yq](https://github.com/mikefarah/yq), envsubst, rsync, make, patch, zstd, tzdata, zip / unzip
 
 **Code coverage** uses `pcov`. Xdebug is installed but not loaded. Turn it on for a single command with `php -dzend_extension=xdebug`, or for a whole job (as root) with:
 
@@ -133,9 +136,39 @@ cache:
     - .yarn-cache
 ```
 
+## Cloud tags
+
+`php85-cloud` and `latest-cloud` are the same image plus these CLIs, for deploy and infrastructure jobs. They are about 1 GB larger uncompressed, so use them only in the jobs that need them.
+
+| Tool | Command |
+| --- | --- |
+| [Docker CLI](https://docs.docker.com/reference/cli/docker/) with buildx and compose | `docker` |
+| [kubectl](https://kubernetes.io/docs/reference/kubectl/) | `kubectl` |
+| [Helm 4](https://helm.sh) | `helm` |
+| [OpenTofu](https://opentofu.org) | `tofu` |
+| [Terraform](https://developer.hashicorp.com/terraform) | `terraform` |
+| [Google Cloud CLI](https://cloud.google.com/sdk/gcloud) with the GKE auth plugin | `gcloud` |
+| [Firebase CLI](https://firebase.google.com/docs/cli) | `firebase` |
+
+- The Docker CLI needs a daemon. In GitLab CI, add a `docker:dind` service and set `DOCKER_HOST`.
+- gcloud ships without `bq` and `gsutil`; use `gcloud storage` instead of `gsutil`.
+- Authenticate gcloud and Firebase with `GOOGLE_APPLICATION_CREDENTIALS`, or with workload identity federation.
+
+## Deploying with Bref
+
+[Bref](https://bref.sh) belongs in your project, not in the image. Add `bref/bref` to `composer.json`, then deploy with [osls](https://github.com/oss-serverless/osls), the open-source Serverless Framework fork that Bref recommends:
+
+```bash
+npm install --save-dev osls
+npx osls deploy
+```
+
+- osls 4 refuses to run when `serverless.yml` pins `frameworkVersion: '3'`. Projects that still pin v3 should install `osls@legacy` instead.
+- Serverless Framework v4 needs a Serverless account key even to package, so osls is the simpler choice in CI.
+
 ## Verifying images
 
-Images built from `main` (`php85`, `latest`) are signed with [cosign](https://github.com/sigstore/cosign) keyless signing, and carry SBOM and SLSA provenance attestations.
+Images built from `main` (`php85`, `latest` and their `-cloud` variants) are signed with [cosign](https://github.com/sigstore/cosign) keyless signing, and carry SBOM and SLSA provenance attestations.
 
 ```bash
 cosign verify ghcr.io/msonowal/docker-php-node:php85 \
