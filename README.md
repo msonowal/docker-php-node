@@ -10,6 +10,7 @@
   <img src="https://img.shields.io/badge/Node.js-24%20LTS-5FA04E?logo=nodedotjs&logoColor=white" alt="Node.js 24 LTS">
   <img src="https://img.shields.io/badge/platform-amd64%20%7C%20arm64-1D63ED" alt="Platforms: amd64, arm64">
   <a href="https://github.com/msonowal/docker-php-node/pkgs/container/docker-php-node"><img src="https://img.shields.io/badge/ghcr.io-available-24292f?logo=github" alt="Available on GHCR"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
 </p>
 
 A ready-to-go image for **building and testing PHP / Laravel apps** in CI (GitLab CI, GitHub Actions, Bitbucket, …) and locally. PHP, Composer, Node.js, npm, Yarn and the usual QA tools are already installed, so jobs can start on `composer install` instead of on setup.
@@ -72,14 +73,14 @@ Builds are also tagged `sha-<commit>`. Browse all tags on [Docker Hub](https://h
 
 ## What's included
 
-These are for the `php85` tag. Older tags are similar, with versions that fit their PHP release.
+These are for the `php85` tag. The older `phpXY` tags haven't been updated with this tool set yet. They still ship Yarn 1 without Corepack, the original `phpcpd` and `local-php-security-checker`, and no Xdebug or PostgreSQL support.
 
 **PHP** with the development `php.ini`, plus these extensions on top of the official image's defaults:
-`bcmath` `exif` `gd` `gmp` `intl` `mongodb` `opcache` `pcntl` `pcov` `pdo_mysql` `redis` `sockets` `zip`
+`bcmath` `exif` `gd` `gmp` `intl` `mongodb` `opcache` `pcntl` `pcov` `pdo_mysql` `pdo_pgsql` `pgsql` `redis` `sockets` `zip`, and Xdebug (installed, off by default)
 
-**JavaScript:** Node.js 24 LTS (from Alpine's packages), npm and Yarn 1.22.22
+**JavaScript:** Node.js 24 LTS (from Alpine's packages), npm, and [Corepack](https://github.com/nodejs/corepack) for Yarn and pnpm. See [Yarn and pnpm](#yarn-and-pnpm).
 
-**Composer 2**, plus these tools installed globally and on `PATH`:
+**Composer 2**, plus these tools on `PATH`. Each is installed in its own directory under `/opt/tools`, so their dependencies can't conflict.
 
 | Tool | Command |
 | --- | --- |
@@ -87,16 +88,62 @@ These are for the `php85` tag. Older tags are similar, with versions that fit th
 | [phpcov](https://github.com/sebastianbergmann/phpcov) | `phpcov` |
 | [PHPStan](https://phpstan.org) | `phpstan` |
 | [Laravel Pint](https://laravel.com/docs/pint) | `pint` |
-| [PHP_CodeSniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer) | `phpcs` |
+| [PHP CS Fixer](https://cs.symfony.com) | `php-cs-fixer` |
+| [PHP_CodeSniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer) | `phpcs`, `phpcbf` |
 | [PHPMD](https://phpmd.org) | `phpmd` |
-| [phpcpd](https://github.com/sebastianbergmann/phpcpd) | `phpcpd` |
-| [Local PHP Security Checker](https://github.com/fabpot/local-php-security-checker) | `security-checker` |
+| [phpcpd](https://github.com/systemsdk/phpcpd) (maintained fork) | `phpcpd` |
+| [composer-normalize](https://github.com/ergebnis/composer-normalize) | `composer normalize` |
+| [composer-unused](https://github.com/composer-unused/composer-unused) | `composer-unused` |
+| [ComposerRequireChecker](https://github.com/maglnet/ComposerRequireChecker) | `composer-require-checker` |
+| `composer audit` | `security-checker` (see below) |
 | [Laravel Envoy](https://laravel.com/docs/envoy) | `envoy` |
 | [Laravel Vapor CLI](https://docs.vapor.build) | `vapor` |
 
-**Also:** AWS CLI v2, git, openssh-client, curl, zip / unzip
+**Also:** AWS CLI v2, MariaDB / MySQL client, PostgreSQL 18 client, git, openssh-client, curl, jq, rsync, make, patch, zip / unzip
 
-Code coverage uses `pcov`. Xdebug is not installed.
+**Code coverage** uses `pcov`. Xdebug is installed but not loaded. Turn it on for a single command with `php -dzend_extension=xdebug`, or for a whole job (as root) with:
+
+```bash
+echo "zend_extension=xdebug" > "$PHP_INI_DIR/conf.d/xdebug.ini"
+```
+
+**`security-checker`** now runs `composer audit --locked`, because [local-php-security-checker](https://github.com/fabpot/local-php-security-checker) is archived. It still accepts the old `--path`, `--format=json`, `--no-dev` and `--disable-exit-code` options, and exits non-zero when `composer.lock` has a package with a known advisory.
+
+## Yarn and pnpm
+
+`yarn` and `pnpm` come from Corepack, which uses whatever version the project pins in `package.json`:
+
+```json
+{ "packageManager": "yarn@4.18.1" }
+```
+
+- A project that pins nothing gets **Yarn 1.22.22**, as before.
+- The Yarn 4 and pnpm versions pinned in the [Dockerfile](Dockerfile) are pre-installed (currently 4.18.1 and 12.15.0), so projects pinned to them work offline. Any other pinned version is downloaded on first use.
+- Non-root users can't write to `/opt/corepack`. If such a job needs a version that isn't pre-installed, set `COREPACK_HOME=$HOME/.cache/corepack`.
+
+Yarn 4 keeps its cache outside the project by default. GitLab CI can only cache paths inside the project, so point both Yarn versions at one folder there:
+
+```yaml
+variables:
+  YARN_ENABLE_GLOBAL_CACHE: "false" # Yarn 4: use YARN_CACHE_FOLDER
+  YARN_CACHE_FOLDER: .yarn-cache # Yarn 1 and Yarn 4
+
+cache:
+  paths:
+    - .yarn-cache
+```
+
+## Verifying images
+
+Images built from `main` (`php85`, `latest`) are signed with [cosign](https://github.com/sigstore/cosign) keyless signing, and carry SBOM and SLSA provenance attestations.
+
+```bash
+cosign verify ghcr.io/msonowal/docker-php-node:php85 \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  --certificate-identity https://github.com/msonowal/docker-php-node/.github/workflows/docker-image.yml@refs/heads/main
+
+docker buildx imagetools inspect ghcr.io/msonowal/docker-php-node:php85 --format '{{ json .SBOM }}'
+```
 
 ## Building locally
 
@@ -105,3 +152,9 @@ docker build -t docker-php-node .
 ```
 
 CI builds `linux/amd64` and `linux/arm64` natively, each on its own GitHub-hosted runner, then merges them into one multi-arch tag. See [`.github/workflows/docker-image.yml`](.github/workflows/docker-image.yml).
+
+Every run also does the following:
+- Lints the Dockerfile and workflow with hadolint, actionlint and zizmor.
+- Scans the published image with Trivy and reports the results to code scanning.
+
+Renovate keeps the pinned versions up to date. Planned work is in [`docs/ROADMAP.md`](docs/ROADMAP.md).
