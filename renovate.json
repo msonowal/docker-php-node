@@ -28,6 +28,11 @@
       "enabled": false
     },
     {
+      "description": "GitHub release tags such as v2.103.2 map to the bare versions pinned in the Dockerfile",
+      "matchDatasources": ["github-releases"],
+      "extractVersion": "^v(?<version>.+)$"
+    },
+    {
       "description": "One PR for all GitHub Actions updates",
       "matchManagers": ["github-actions"],
       "groupName": "GitHub Actions"
