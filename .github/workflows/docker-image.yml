@@ -7,88 +7,165 @@ name: Docker
 
 on:
   schedule:
-    - cron: '0 23 * * 3'
+    - cron: "0 23 * * 3"
   push:
     branches:
-      - '**'
+      - "**"
     tags:
-      - 'v*.*.*'
-      - 'php*.*.*'
+      - "v*.*.*"
+      - "php*.*.*"
   pull_request:
     branches:
-      - 'main'
+      - "main"
   workflow_dispatch:
 
 env:
-  # github.repository as <account>/<repo>
-  IMAGE_NAME: ${{ github.repository }}
-
+  DOCKERHUB_IMAGE: msonowal/docker-php-node
+  GHCR_IMAGE: ghcr.io/${{ github.repository }}
+  # Docker tags to generate, shared by the build and merge jobs
+  # https://github.com/docker/metadata-action
+  TAG_RULES: |
+    type=schedule
+    type=ref,event=branch
+    type=ref,event=pr
+    type=semver,pattern={{version}}
+    type=semver,pattern={{major}}.{{minor}}
+    type=semver,pattern={{major}}
+    type=sha
+    type=raw,value=php83,enable=${{ github.ref == 'refs/heads/php83' }}
 
 jobs:
+  # Build each platform natively on its own runner (no QEMU) and push it by digest
   build:
-
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            arch: amd64
+            runner: ubuntu-latest
+          - platform: linux/arm64
+            arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
       packages: write
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 3
 
-      # Extract metadata (tags, labels) for Docker
-      # https://github.com/docker/metadata-action
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
-          # list of Docker images to use as base name for tags
           images: |
-            msonowal/docker-php-node
-            ghcr.io/${{ env.IMAGE_NAME }}
-          # generate Docker tags based on the following events/attributes
-          tags: |
-            type=schedule
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=sha
-            type=edge,branch=main
-            type=raw,value=latest
-            type=raw,value=php83
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+            ${{ env.DOCKERHUB_IMAGE }}
+            ${{ env.GHCR_IMAGE }}
+          tags: ${{ env.TAG_RULES }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
-      -
-        name: Login to DockerHub
+      - name: Login to DockerHub
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      -
-        name: Login to GHCR
+      - name: Login to GHCR
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      -
-        name: Build and push
-        uses: docker/build-push-action@v5
+      - name: Build and push by digest
+        id: build
+        uses: docker/build-push-action@v7
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
+          platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=image,"name=${{ env.DOCKERHUB_IMAGE }},${{ env.GHCR_IMAGE }}",push-by-digest=true,name-canonical=true,push=${{ github.event_name != 'pull_request' }}
+
+      - name: Export digest
+        if: github.event_name != 'pull_request'
+        run: |
+          mkdir -p "${{ runner.temp }}/digests"
+          digest="${{ steps.build.outputs.digest }}"
+          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+
+      - name: Upload digest
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v7
+        with:
+          name: digests-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  # Combine the per-platform digests into multi-arch tags on both registries
+  merge:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v8
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-*
+          merge-multiple: true
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: |
+            ${{ env.DOCKERHUB_IMAGE }}
+            ${{ env.GHCR_IMAGE }}
+          tags: ${{ env.TAG_RULES }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Login to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # each registry's tags point at the digests pushed to that same registry
+      - name: Create manifest lists and push
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          for image in "$DOCKERHUB_IMAGE" "$GHCR_IMAGE"; do
+            args=()
+            for tag in $(jq -r --arg image "$image" '.tags[] | select(startswith($image + ":"))' <<< "$DOCKER_METADATA_OUTPUT_JSON"); do
+              args+=(-t "$tag")
+            done
+            for digest in *; do
+              args+=("$image@sha256:$digest")
+            done
+            docker buildx imagetools create "${args[@]}"
+          done
+
+      - name: Inspect image
+        run: |
+          docker buildx imagetools inspect "$DOCKERHUB_IMAGE:${{ steps.meta.outputs.version }}"
+          docker buildx imagetools inspect "$GHCR_IMAGE:${{ steps.meta.outputs.version }}"
