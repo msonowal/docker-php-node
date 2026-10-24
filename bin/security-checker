@@ -1,0 +1,56 @@
+#!/bin/sh
+# local-php-security-checker is archived upstream, which recommends `composer audit` instead.
+# This keeps its command line working so existing CI jobs don't break.
+set -eu
+
+usage() {
+    cat <<'EOF'
+Usage: security-checker [--path=DIR] [--format=ansi|json] [--no-dev] [--disable-exit-code]
+
+Checks composer.lock for packages with known security advisories, using `composer audit --locked`.
+EOF
+}
+
+path=.
+format=ansi
+no_dev=
+disable_exit_code=
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -path=* | --path=*) path=${1#*=} ;;
+        -path | --path) path=${2:?--path needs a value}; shift ;;
+        -format=* | --format=*) format=${1#*=} ;;
+        -format | --format) format=${2:?--format needs a value}; shift ;;
+        -no-dev | --no-dev) no_dev=1 ;;
+        -disable-exit-code | --disable-exit-code) disable_exit_code=1 ;;
+        # Composer fetches the advisories itself, so the old cache options no longer apply
+        -update-cache | --update-cache | -local | --local) ;;
+        -cache-dir=* | --cache-dir=* | -archive=* | --archive=*) ;;
+        -cache-dir | --cache-dir | -archive | --archive) shift ;;
+        -h | -help | --help) usage; exit 0 ;;
+        *) echo "security-checker: unknown option: $1" >&2; usage >&2; exit 2 ;;
+    esac
+    shift
+done
+
+case "$format" in
+    json) ;;
+    ansi | table) format=table ;;
+    *) echo "security-checker: --format=$format has no composer audit equivalent, using table" >&2; format=table ;;
+esac
+
+# the old checker also accepted the path of composer.lock itself
+[ -f "$path" ] && path=$(dirname "$path")
+
+# like the old checker, report vulnerabilities only, not abandoned packages
+export COMPOSER_AUDIT_ABANDONED="${COMPOSER_AUDIT_ABANDONED:-ignore}"
+
+set -- audit --locked --working-dir="$path" --format="$format"
+[ -n "$no_dev" ] && set -- "$@" --no-dev
+
+if [ -n "$disable_exit_code" ]; then
+    composer "$@" || true
+else
+    exec composer "$@"
+fi
