@@ -11,7 +11,7 @@
 
 `php84` (PHP 8.4)
 
-`php84` (PHP 8.3)
+`php83` (PHP 8.3)
 
 `php82` (PHP 8.2)
 
