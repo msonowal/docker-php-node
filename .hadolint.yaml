@@ -1,0 +1,3 @@
+ignored:
+  # Alpine packages stay unpinned so each rebuild picks up their security fixes
+  - DL3018
