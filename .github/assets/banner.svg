@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="360" viewBox="0 0 1280 360" role="img" aria-labelledby="title desc">
+  <title id="title">docker-php-node</title>
+  <desc id="desc">Docker image with PHP 8.5, Node.js 24 LTS and Composer 2 on Alpine, for CI and local development.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B1022"/>
+      <stop offset="1" stop-color="#141B36"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8F93D6"/>
+      <stop offset="1" stop-color="#6CC24A"/>
+    </linearGradient>
+    <radialGradient id="glowPhp" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#777BB4" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#777BB4" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowNode" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#5FA04E" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#5FA04E" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1" fill="#FFFFFF" fill-opacity="0.06"/>
+    </pattern>
+    <clipPath id="card">
+      <rect width="1280" height="360" rx="18"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#card)">
+    <rect width="1280" height="360" fill="url(#bg)"/>
+    <rect width="1280" height="360" fill="url(#dots)"/>
+    <circle cx="140" cy="40" r="300" fill="url(#glowPhp)"/>
+    <circle cx="1120" cy="340" r="320" fill="url(#glowNode)"/>
+    <rect x="0" y="354" width="1280" height="6" fill="url(#accent)"/>
+  </g>
+
+  <!-- left: name, stack, tools -->
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+    <text x="72" y="96" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" letter-spacing="2.5" fill="#8B95B2">DOCKER IMAGE · CI &amp; LOCAL DEV</text>
+    <text x="70" y="162" font-size="62" font-weight="700" fill="#F3F5FB" letter-spacing="-1">docker-<tspan fill="#A3A7E4">php</tspan>-<tspan fill="#7DCB5C">node</tspan></text>
+    <text x="72" y="206" font-size="22" fill="#C3CBE3">PHP 8.5 · Node.js 24 LTS · Composer 2 · Alpine</text>
+  </g>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" fill="#DCE2F5">
+    <g transform="translate(72 240)">
+      <rect width="136" height="34" rx="17" fill="#1D63ED" fill-opacity="0.18" stroke="#4C86F7" stroke-opacity="0.55"/>
+      <text x="68" y="22" text-anchor="middle">amd64 + arm64</text>
+    </g>
+    <g transform="translate(218 240)">
+      <rect width="90" height="34" rx="17" fill="#FFFFFF" fill-opacity="0.05" stroke="#FFFFFF" stroke-opacity="0.16"/>
+      <text x="45" y="22" text-anchor="middle">PHPUnit</text>
+    </g>
+    <g transform="translate(318 240)">
+      <rect width="90" height="34" rx="17" fill="#FFFFFF" fill-opacity="0.05" stroke="#FFFFFF" stroke-opacity="0.16"/>
+      <text x="45" y="22" text-anchor="middle">PHPStan</text>
+    </g>
+    <g transform="translate(418 240)">
+      <rect width="66" height="34" rx="17" fill="#FFFFFF" fill-opacity="0.05" stroke="#FFFFFF" stroke-opacity="0.16"/>
+      <text x="33" y="22" text-anchor="middle">Pint</text>
+    </g>
+    <g transform="translate(494 240)">
+      <rect width="74" height="34" rx="17" fill="#FFFFFF" fill-opacity="0.05" stroke="#FFFFFF" stroke-opacity="0.16"/>
+      <text x="37" y="22" text-anchor="middle">Envoy</text>
+    </g>
+    <g transform="translate(578 240)">
+      <rect width="90" height="34" rx="17" fill="#FFFFFF" fill-opacity="0.05" stroke="#FFFFFF" stroke-opacity="0.16"/>
+      <text x="45" y="22" text-anchor="middle">AWS CLI</text>
+    </g>
+    <text x="72" y="316" font-size="15" fill="#8B95B2">$ docker pull <tspan fill="#DCE2F5">msonowal/docker-php-node</tspan></text>
+  </g>
+
+  <!-- right: terminal -->
+  <g transform="translate(780 58)">
+    <rect width="440" height="246" rx="12" fill="#070A16" fill-opacity="0.85" stroke="#FFFFFF" stroke-opacity="0.12"/>
+    <path d="M12 0h416a12 12 0 0 1 12 12v24H0V12A12 12 0 0 1 12 0z" fill="#FFFFFF" fill-opacity="0.05"/>
+    <circle cx="22" cy="18" r="5.5" fill="#FF5F57"/>
+    <circle cx="40" cy="18" r="5.5" fill="#FEBC2E"/>
+    <circle cx="58" cy="18" r="5.5" fill="#28C840"/>
+    <text x="220" y="23" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" fill="#6B7594">.gitlab-ci.yml</text>
+    <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15">
+      <text x="24" y="72" fill="#8F93D6">image<tspan fill="#6B7594">:</tspan> <tspan fill="#DCE2F5">msonowal/docker-php-node:php85</tspan></text>
+      <text x="24" y="104" fill="#8F93D6">test<tspan fill="#6B7594">:</tspan></text>
+      <text x="44" y="130" fill="#8F93D6">script<tspan fill="#6B7594">:</tspan></text>
+      <text x="64" y="156" fill="#DCE2F5"><tspan fill="#6B7594">- </tspan>composer install</text>
+      <text x="64" y="182" fill="#DCE2F5"><tspan fill="#6B7594">- </tspan>npm ci &amp;&amp; npm run build</text>
+      <text x="64" y="208" fill="#DCE2F5"><tspan fill="#6B7594">- </tspan>phpunit</text>
+      <text x="370" y="208" fill="#7DCB5C">✓ pass</text>
+    </g>
+  </g>
+</svg>
