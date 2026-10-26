@@ -13,9 +13,12 @@ RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 COPY --from=mlocati/php-extension-installer:2.12.3 /usr/bin/install-php-extensions /usr/local/bin/
 COPY --from=composer:2.10.3 /usr/bin/composer /usr/local/bin/composer
 
+# Upgrade the packages the base image ships with, so each weekly rebuild picks up Alpine security fixes
+# without waiting for the official PHP image to be rebuilt.
 # Xdebug is installed but not loaded, so pcov stays the coverage driver.
 # Turn it on with `php -dzend_extension=xdebug`, or an ini file containing `zend_extension=xdebug`.
-RUN php -m \
+RUN apk upgrade --no-cache \
+    && php -m \
     && install-php-extensions \
     bcmath pcntl zip opcache pdo_mysql pdo_pgsql pgsql sockets gmp gd exif redis mongodb intl pcov xdebug \
     && rm "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini" \
