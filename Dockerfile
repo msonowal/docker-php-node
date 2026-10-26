@@ -63,7 +63,8 @@ RUN set -eu; \
     tool envoy laravel/envoy envoy; \
     tool vapor laravel/vapor-cli vapor; \
     tool laravel laravel/installer laravel; \
-    tool cloud laravel/cloud-cli cloud; \
+    # the Cloud CLI's bundled dependencies need PHP 8.4, although its composer.json allows 8.3
+    if php -r 'exit(PHP_VERSION_ID >= 80400 ? 0 : 1);'; then tool cloud laravel/cloud-cli cloud; fi; \
     composer global config --no-plugins allow-plugins.ergebnis/composer-normalize true; \
     composer global require --no-interaction --no-progress ergebnis/composer-normalize; \
     globalBin=$(composer global config bin-dir --absolute 2>/dev/null); \
@@ -89,7 +90,7 @@ RUN phpunit --version && \
     envoy -v && \
     vapor --version && \
     laravel --version && \
-    cloud --version && \
+    { [ ! -e /usr/local/bin/cloud ] || cloud --version; } && \
     php -r 'exit(extension_loaded("pcov") && !extension_loaded("xdebug") ? 0 : 1);' && \
     php -dzend_extension=xdebug -r 'exit(extension_loaded("xdebug") ? 0 : 1);'
 

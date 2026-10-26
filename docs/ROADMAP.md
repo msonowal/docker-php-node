@@ -51,7 +51,9 @@ Planned improvements to the image and its build, from research done in October 2
 - [x] Default image: `gh`, `glab`, Laravel installer, Laravel Cloud CLI, `bash`, `envsubst`, `yq`, `zstd`, `tzdata`.
 - [x] `php85-cloud` / `latest-cloud`: Docker CLI with buildx and compose, kubectl, Helm 4, OpenTofu, Terraform, gcloud with the GKE auth plugin, Firebase CLI.
 - Bref and osls stay in each project; Serverless Framework v4 needs an account key, and Bref Cloud's CLI is proprietary.
-- `laravel/cloud-cli`'s latest release needs PHP 8.3, so `php82` gets the newest release that supports 8.2. Composer picks a compatible release of every tool the same way, so `php82` gets PHPUnit 11. `-cloud` is built for the newest PHP only.
+- `laravel/cloud-cli` is installed on PHP 8.4 and newer only. Its composer.json allows 8.3, but the dependencies bundled inside it need 8.4.1, so it crashes on 8.3. On 8.2, Composer would pick an old 0.5.0 release instead.
+- Composer picks the newest compatible release of every other tool for each PHP version, so `php82` gets PHPUnit 11.
+- `-cloud` is built for the newest PHP only.
 
 ## Next
 
