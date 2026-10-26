@@ -1,0 +1,14 @@
+{
+    "name": "docker-php-node/fixture",
+    "description": "A small project the smoke test installs and tests inside each image",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "psr/log": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Fixture\\": "src/"
+        }
+    }
+}
