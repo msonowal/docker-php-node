@@ -200,4 +200,4 @@ Every run also does the following:
 
 Pull requests build and test every image without publishing anything. Images are published only from `main`.
 
-Renovate keeps the pinned versions up to date. Planned work is in [`docs/ROADMAP.md`](docs/ROADMAP.md).
+Renovate keeps the pinned versions up to date. It merges minor and patch updates once CI passes, and leaves major updates for review. Planned work is in [`docs/ROADMAP.md`](docs/ROADMAP.md).

@@ -2,6 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended", "helpers:pinGitHubActionDigests"],
   "minimumReleaseAge": "3 days",
+  "platformAutomerge": false,
   "customManagers": [
     {
       "customType": "regex",
@@ -36,6 +37,11 @@
       "description": "One PR for all GitHub Actions updates",
       "matchManagers": ["github-actions"],
       "groupName": "GitHub Actions"
+    },
+    {
+      "description": "Merge non-major updates once CI passes, since it builds and smoke-tests every image; major updates wait for review",
+      "matchUpdateTypes": ["minor", "patch", "digest", "pin", "pinDigest"],
+      "automerge": true
     }
   ]
 }
