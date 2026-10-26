@@ -100,7 +100,7 @@ jobs:
 | [Laravel Envoy](https://laravel.com/docs/envoy) | `envoy` |
 | [Laravel Vapor CLI](https://docs.vapor.build) | `vapor` |
 | [Laravel installer](https://laravel.com/docs/installation) | `laravel` |
-| [Laravel Cloud CLI](https://github.com/laravel/cloud-cli) | `cloud` |
+| [Laravel Cloud CLI](https://github.com/laravel/cloud-cli) (PHP 8.4 and newer) | `cloud` |
 
 **Also:** AWS CLI v2, [GitHub CLI](https://cli.github.com) (`gh`), [GitLab CLI](https://gitlab.com/gitlab-org/cli) (`glab`), MariaDB / MySQL client, PostgreSQL 18 client, git, openssh-client, curl, bash, jq, [yq](https://github.com/mikefarah/yq), envsubst, rsync, make, patch, zstd, tzdata, zip / unzip
 

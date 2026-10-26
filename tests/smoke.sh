@@ -43,7 +43,11 @@ run security-checker --help
 run envoy -v
 run vapor --version
 run laravel --version
-run cloud --version
+# the Laravel Cloud CLI is installed on PHP 8.4 and newer only
+case $php_version in
+    8.2 | 8.3) ! command -v cloud > /dev/null || fail "cloud is installed on PHP $php_version" ;;
+    *) run cloud --version ;;
+esac
 run node --version
 run npm --version
 run yarn --version
