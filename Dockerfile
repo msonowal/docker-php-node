@@ -1,4 +1,7 @@
-FROM php:8.5-fpm-alpine AS base
+# CI builds each supported PHP version by setting PHP_VERSION; the default is the newest
+ARG PHP_VERSION=8.5
+
+FROM php:${PHP_VERSION}-fpm-alpine AS base
 
 # the other OCI labels (source, version, revision, ...) are set by docker/metadata-action in CI
 LABEL org.opencontainers.image.authors="manash149@gmail.com"

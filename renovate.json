@@ -22,7 +22,7 @@
   ],
   "packageRules": [
     {
-      "description": "The PHP version is chosen per branch, not bumped by Renovate",
+      "description": "The PHP versions are chosen by the workflow matrix, not bumped by Renovate",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["php"],
       "enabled": false
