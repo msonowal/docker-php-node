@@ -1,6 +1,6 @@
 # Roadmap
 
-Planned improvements to the image and its build, from research done in October 2026. Phases 2 and 3 are implemented on the `feat/modern-tooling` branch, for `php85` only; Phase 1 is deferred.
+Planned improvements to the image and its build, from research done in October 2026. Phases 2 and 3 shipped first, for `php85` only. Phase 1 then brought them to `php82`–`php84` by building every version from `main`.
 
 ## Findings that shaped this plan
 
@@ -11,13 +11,18 @@ Planned improvements to the image and its build, from research done in October 2
 - **`phpcpd` and `local-php-security-checker` are archived upstream**, and the `phpunit-bridge` symlink is broken.
 - **Yarn Berry projects that only set `"packageManager": "yarn@4…"` fail**, because Alpine's Node package ships without Corepack.
 
-## Phase 1: build pipeline (deferred)
+## Phase 1: build pipeline
 
-- [ ] Build every PHP version from `main` with one Dockerfile and a version matrix (`BASE_IMAGE` and `EXTRA_EXTENSIONS` build args). Only `php85` gets `latest`. Freeze the `php81`–`php84` branches. This is how jakzal/phpqa, thecodingmachine and serversideup work.
-- [ ] Publish only from `main` and git tags. Pull requests build and test without pushing.
-- [ ] Smoke-test each per-platform digest on its native runner before the merge job tags it: PHP version, extensions, every tool runs, and a fixture project passes `composer install`, `phpunit` and `npm ci`.
-- [ ] Make the weekly rebuild reliable: schedule it off the top of the hour, and use `no-cache` on scheduled runs so `apk` and Composer layers refresh.
-- [ ] Add a concurrency group that never cancels a `main` run mid-merge.
+- [x] Build PHP 8.2–8.5 from `main` with one Dockerfile (a `PHP_VERSION` build arg) and a version matrix. Only `php85` gets `latest`, `edge`, `main`, `nightly` and `sha-<commit>`. This is how jakzal/phpqa, thecodingmachine and serversideup work.
+  - The `php81`–`php84` branches are no longer built.
+  - `php81` stays frozen, because upstream stopped updating `php:8.1-fpm-alpine` (Alpine 3.21) in December 2025.
+- [x] Publish only from `main`. Pull requests build and test without pushing. The git tag triggers are gone; no release tags were ever pushed.
+- [x] Smoke-test each per-platform image on its native runner before pushing it (`tests/smoke.sh`): PHP version, extensions, every tool runs, and a fixture project passes `composer install`, `phpunit` with pcov coverage, and `npm ci`.
+- [x] Make the weekly rebuild reliable:
+  - Schedule it off the top of the hour.
+  - Re-enable the workflow from each scheduled run, which is reported to reset the 60-day inactivity timer.
+  - `no-cache` isn't needed, because CI keeps no layer cache, so every run already refreshes the `apk` and Composer layers.
+- [x] Add a concurrency group that never cancels a `main` run mid-merge.
 
 ## Phase 2: image contents
 
@@ -46,7 +51,12 @@ Planned improvements to the image and its build, from research done in October 2
 - [x] Default image: `gh`, `glab`, Laravel installer, Laravel Cloud CLI, `bash`, `envsubst`, `yq`, `zstd`, `tzdata`.
 - [x] `php85-cloud` / `latest-cloud`: Docker CLI with buildx and compose, kubectl, Helm 4, OpenTofu, Terraform, gcloud with the GKE auth plugin, Firebase CLI.
 - Bref and osls stay in each project; Serverless Framework v4 needs an account key, and Bref Cloud's CLI is proprietary.
-- For Phase 1: `laravel/cloud-cli` needs PHP 8.3+, so a `php82` build has to skip it. Build `-cloud` for the newest PHP only.
+- `laravel/cloud-cli`'s latest release needs PHP 8.3, so `php82` gets the newest release that supports 8.2. Composer picks a compatible release of every tool the same way, so `php82` gets PHPUnit 11. `-cloud` is built for the newest PHP only.
+
+## Next
+
+- Turn on Renovate automerge for minor, patch and digest updates now that every image is smoke-tested. Regular merges also keep the repository active, as a second guard on the scheduled rebuild.
+- Drop `8.2` from the matrix when its security support ends on 2026-12-31. The `php82` tag stays, frozen.
 
 ## Later: optional variant tags
 
