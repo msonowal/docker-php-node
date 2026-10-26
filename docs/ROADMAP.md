@@ -37,7 +37,7 @@ Planned improvements to the image and its build, from research done in October 2
 
 ## Phase 3: dependency updates and supply chain
 
-- [x] Renovate, with regex managers for versions pinned in the Dockerfile. Automerge stays off until Phase 1's tests exist.
+- [x] Renovate, with regex managers for versions pinned in the Dockerfile. Automerge was turned on once Phase 1's smoke tests existed (see Next).
 - [x] Pin every GitHub Action by commit SHA, and pin Composer and `install-php-extensions` by version.
 - [x] Trivy vulnerability scan, uploaded to code scanning, non-blocking.
 - [x] SBOM attestations, plus a cosign keyless signature on each registry's multi-arch index.
@@ -57,8 +57,11 @@ Planned improvements to the image and its build, from research done in October 2
 
 ## Next
 
-- Turn on Renovate automerge for minor, patch and digest updates now that every image is smoke-tested. Regular merges also keep the repository active, as a second guard on the scheduled rebuild.
-- Drop `8.2` from the matrix when its security support ends on 2026-12-31. The `php82` tag stays, frozen.
+- [x] Turn on Renovate automerge for minor, patch and digest updates now that every image is smoke-tested. Major updates still wait for review.
+  - Renovate merges each PR itself once its checks pass (`platformAutomerge: false`), so it doesn't depend on branch protection.
+  - Regular merges also keep the repository active, as a second guard on the scheduled rebuild.
+- [x] `apk upgrade` the base image's packages in every build, so the weekly rebuild picks up Alpine security fixes without waiting for the official PHP image. The first case was `curl` 8.22.0 in October 2026.
+- [ ] Drop `8.2` from the matrix when its security support ends on 2026-12-31. The `php82` tag stays, frozen.
 
 ## Later: optional variant tags
 
