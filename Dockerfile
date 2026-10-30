@@ -144,7 +144,7 @@ COPY --from=registry.gitlab.com/gitlab-org/cli:v1.124.0 /usr/bin/glab /usr/local
 
 ARG TARGETARCH
 # renovate: datasource=github-releases depName=cli/cli
-ARG GH_VERSION=2.103.2
+ARG GH_VERSION=2.103.3
 # hadolint ignore=DL3003
 RUN cd /tmp && \
     curl -fsSLO "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_${TARGETARCH}.tar.gz" && \
