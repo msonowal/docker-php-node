@@ -104,7 +104,7 @@ ARG COREPACK_VERSION=0.36.0
 # renovate: datasource=npm depName=@yarnpkg/cli-dist
 ARG YARN_BERRY_VERSION=4.18.1
 # renovate: datasource=npm depName=pnpm
-ARG PNPM_VERSION=12.16.0
+ARG PNPM_VERSION=12.16.1
 ARG YARN_CLASSIC_VERSION=1.22.22
 ENV COREPACK_HOME=/opt/corepack \
     COREPACK_ENABLE_DOWNLOAD_PROMPT=0
