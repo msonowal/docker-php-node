@@ -179,7 +179,7 @@ RUN apk add --no-cache docker-cli docker-cli-buildx docker-cli-compose python3
 
 COPY --from=registry.k8s.io/kubectl:v1.37.1 /bin/kubectl /usr/local/bin/kubectl
 COPY --from=ghcr.io/opentofu/opentofu:1.13.2-minimal /usr/local/bin/tofu /usr/local/bin/tofu
-COPY --from=hashicorp/terraform:1.17.0 /bin/terraform /usr/local/bin/terraform
+COPY --from=hashicorp/terraform:1.17.1 /bin/terraform /usr/local/bin/terraform
 
 # renovate: datasource=github-releases depName=helm/helm
 ARG HELM_VERSION=4.3.1
