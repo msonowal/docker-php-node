@@ -10,7 +10,7 @@ LABEL org.opencontainers.image.authors="manash149@gmail.com"
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 # pinned versions are kept up to date by Renovate
-COPY --from=mlocati/php-extension-installer:2.13.1 /usr/bin/install-php-extensions /usr/local/bin/
+COPY --from=mlocati/php-extension-installer:2.13.2 /usr/bin/install-php-extensions /usr/local/bin/
 COPY --from=composer:2.11.1 /usr/bin/composer /usr/local/bin/composer
 
 # Upgrade the packages the base image ships with, so each weekly rebuild picks up Alpine security fixes
