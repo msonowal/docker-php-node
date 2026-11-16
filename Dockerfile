@@ -182,7 +182,7 @@ COPY --from=ghcr.io/opentofu/opentofu:1.13.2-minimal /usr/local/bin/tofu /usr/lo
 COPY --from=hashicorp/terraform:1.17.2 /bin/terraform /usr/local/bin/terraform
 
 # renovate: datasource=github-releases depName=helm/helm
-ARG HELM_VERSION=4.3.1
+ARG HELM_VERSION=4.3.2
 # hadolint ignore=DL3003
 RUN cd /tmp && \
     curl -fsSLO "https://get.helm.sh/helm-v${HELM_VERSION}-linux-${TARGETARCH}.tar.gz" && \
