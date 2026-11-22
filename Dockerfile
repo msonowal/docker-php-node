@@ -206,7 +206,7 @@ RUN if [ "$TARGETARCH" = arm64 ]; then arch=arm; else arch=x86_64; fi && \
     rm -rf /opt/google-cloud-sdk/.install/.backup /root/.config/gcloud /tmp/*
 
 # renovate: datasource=npm depName=firebase-tools
-ARG FIREBASE_VERSION=15.36.0
+ARG FIREBASE_VERSION=15.37.0
 RUN npm install -g --no-fund --no-audit "firebase-tools@${FIREBASE_VERSION}" && \
     npm cache clean --force && \
     rm -rf /root/.npm /tmp/*
