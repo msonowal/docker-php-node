@@ -102,7 +102,7 @@ RUN phpunit --version && \
 # renovate: datasource=npm depName=corepack
 ARG COREPACK_VERSION=0.36.0
 # renovate: datasource=npm depName=@yarnpkg/cli-dist
-ARG YARN_BERRY_VERSION=4.18.1
+ARG YARN_BERRY_VERSION=4.19.0
 # renovate: datasource=npm depName=pnpm
 ARG PNPM_VERSION=12.22.0
 ARG YARN_CLASSIC_VERSION=1.22.22
